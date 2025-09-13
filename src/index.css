@@ -1,5 +1,0 @@
-tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* keep animations smooth on mobile */
-.hue-bg { will-change: filter, transform; }
