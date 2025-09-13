@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "190279047981",
+    "project_id": "creativeops-portal",
+    "storage_bucket": "creativeops-portal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190279047981:android:6bb3508f8a6e8a4e31d1a4",
+        "android_client_info": {
+          "package_name": "com.creativedeckfence.creativeops"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjhuk2VHchMtexeAJf7a-kq0gm6fPdrz8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
