@@ -1,40 +1,47 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 
-// Smooth, high-fidelity animated hue background (WebGL), fixed while scrolling
-function EnergyHueBackground() {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const gl = canvas.getContext("webgl");
-    if (!gl) return;
+const App = () => {
+  const [step, setStep] = useState("landing"); // landing → portal → dashboard
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const resize = () => {
-      const w = window.innerWidth, h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      gl.viewport(0, 0, canvas.width, canvas.height);
-    };
-    resize(); window.addEventListener("resize", resize);
+  return (
+    <div className="h-screen w-screen overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-purple-700 via-pink-600 to-blue-600 animate-gradient bg-[length:400%_400%]"></div>
 
-    const vs = "attribute vec2 a; void main(){ gl_Position=vec4(a,0.0,1.0);}";
+      {/* Overlay to keep text legible */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
+        {step === "landing" && (
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-6">CreativeOps Portal</h1>
+            <button
+              onClick={() => setStep("portal")}
+              className="px-8 py-3 rounded-2xl bg-white/20 hover:bg-white/30 text-lg font-semibold backdrop-blur-lg shadow-lg transition transform hover:scale-105"
+            >
+              Enter Portal
+            </button>
+          </div>
+        )}
 
-    const fs = `
-      precision highp float; uniform vec2 r; uniform float t;
-      mat2 R(float a){ float s=sin(a), c=cos(a); return mat2(c,-s,s,c); }
-      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
-      float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
-        float a=h(i), b=h(i+vec2(1.,0.)), c=h(i+vec2(0.,1.)), d=h(i+vec2(1.,1.));
-        return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
-      }
-      float f(vec2 p){ float v=0., a=0.5; for(int i=0;i<6;i++){ v+=a*n(p); p*=2.02; a*=0.52; } return v; }
-      vec3 pal(float x){ return 0.5 + 0.5*cos(6.28318*vec3(x, x+0.33, x+0.67)); }
-      void main(){
-        vec2 uv = (gl_FragCoord.xy/r)*2.0-1.0; uv.x *= r.x/r.y;
-        float k = t*0.15; vec2 q = uv*R(0.10*sin(k*0.7));
+        {step === "portal" && (
+          <div className="text-center">
+            <h2 className="text-3xl font-semibold mb-6">Welcome to the Portal</h2>
+            <button
+              onClick={() => setStep("dashboard")}
+              className="px-8 py-3 rounded-2xl bg-green-500 hover:bg-green-600 text-white text-lg font-semibold shadow-lg transition transform hover:scale-105"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+        )}
+
+        {step === "dashboard" && (
+          <div className="text-center">
+            <h2 className="text-3xl font-semibold mb-4">Dashboard</h2>
+            <p className="mb-4">
+              Key metrics and recent activity for <b>Creative Deck & Fence, LLC</b>.
+            </p>
+            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-md shadow-xl">
+              {/* This is where your app modules        float k = t*0.15; vec2 q = uv*R(0.10*sin(k*0.7));
         float a = f(q*1.4 + vec2(0.0,k*0.5));
         float b = f(q*3.1 + vec2(k*0.2,-k*0.3));
         vec3 col = mix(vec3(0.03,0.04,0.07), pal(a*0.6 + k*0.05), 0.65);
