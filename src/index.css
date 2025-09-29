@@ -2,4 +2,173 @@
 @tailwind components;
 @tailwind utilities;
 /* keep animations smooth on mobile */
-.hue-bg { will-change: filter, transform; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #020617;
+  color: #e2e8f0;
+  font-family: "Inter", "Inter var", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.hue-bg {
+  will-change: filter, transform;
+}
+
+.animate-gradient {
+  animation: gradient-flow 24s ease infinite;
+  background-size: 320% 320%;
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.portal-warp {
+  position: absolute;
+  inset: -20vmax;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.25), rgba(15, 23, 42, 0.4) 35%, rgba(2, 6, 23, 0.95) 70%);
+  animation: warp-pulse 6s ease-in-out infinite;
+}
+
+.portal-stars {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.9) 1px, transparent 0),
+    radial-gradient(rgba(96, 165, 250, 0.8) 1px, transparent 0), radial-gradient(rgba(45, 212, 191, 0.7) 1px, transparent 0);
+  background-size: 120px 120px, 200px 200px, 300px 300px;
+  background-position: 0 0, 40px 80px, 100px 20px;
+  opacity: 0.65;
+  animation: star-travel 18s linear infinite;
+}
+
+.portal-horizon {
+  position: relative;
+  width: min(60vmin, 520px);
+  height: min(60vmin, 520px);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 65%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 120px rgba(59, 130, 246, 0.4);
+}
+
+.portal-ring {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 2px solid rgba(125, 211, 252, 0.35);
+  box-shadow: 0 0 45px rgba(125, 211, 252, 0.4);
+  animation: ring-spin 4.8s linear infinite;
+}
+
+.portal-ring--delayed {
+  inset: 16%;
+  border-color: rgba(192, 132, 252, 0.35);
+  box-shadow: 0 0 45px rgba(192, 132, 252, 0.35);
+  animation-duration: 6.4s;
+  animation-delay: -1.4s;
+}
+
+.portal-singularity {
+  position: relative;
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.2), rgba(2, 6, 23, 0.95));
+  box-shadow: inset 0 0 35px rgba(2, 6, 23, 0.8), 0 0 45px rgba(59, 130, 246, 0.35);
+  animation: singularity-pulse 2.8s ease-in-out infinite;
+}
+
+.portal-lens {
+  position: absolute;
+  width: 130vmax;
+  height: 130vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.18) 0%, transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  animation: lens-rotate 22s linear infinite;
+}
+
+@keyframes warp-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes ring-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1.02);
+  }
+}
+
+@keyframes singularity-pulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    box-shadow: inset 0 0 25px rgba(2, 6, 23, 0.9), 0 0 35px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: inset 0 0 45px rgba(2, 6, 23, 0.7), 0 0 60px rgba(147, 197, 253, 0.45);
+  }
+}
+
+@keyframes lens-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes star-travel {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(40px, -80px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient,
+  .portal-warp,
+  .portal-stars,
+  .portal-ring,
+  .portal-lens,
+  .portal-singularity {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: -0.01ms !important;
+  }
+}
