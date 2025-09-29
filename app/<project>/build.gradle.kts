@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.creativedeckfence.creativeopsportal"
+    namespace = "com.creativedeckfence.creativeops"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.creativedeckfence.creativeopsportal"
+        applicationId = "com.creativedeckfence.creativeops"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
