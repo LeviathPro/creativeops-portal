@@ -3,3 +3,11 @@
 @tailwind utilities;
 /* keep animations smooth on mobile */
 .hue-bg { will-change: filter, transform; }
+
+@layer utilities {
+  .gradient-motion {
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+    animation: gradient 12s ease infinite;
+  }
+}

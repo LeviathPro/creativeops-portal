@@ -6,7 +6,7 @@ const App = () => {
   return (
     <div className="h-screen w-screen overflow-hidden">
       {/* Animated gradient background */}
-      <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-purple-700 via-pink-600 to-blue-600 animate-gradient bg-[length:400%_400%]"></div>
+      <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-purple-700 via-pink-600 to-blue-600 animate-gradient gradient-motion"></div>
 
       {/* Overlay to keep text legible */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
