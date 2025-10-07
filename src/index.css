@@ -1,5 +1,99 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* keep animations smooth on mobile */
-.hue-bg { will-change: filter, transform; }
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-white text-white antialiased;
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.glass-panel {
+  backdrop-filter: blur(36px);
+}
+
+.quantum-field {
+  position: absolute;
+  inset: -20%;
+  background: conic-gradient(from 180deg at 50% 50%, rgba(253, 224, 71, 0.35), rgba(250, 204, 21, 0.18), rgba(248, 250, 252, 0.25));
+  filter: blur(180px) saturate(130%);
+  animation: orbit 40s linear infinite;
+  opacity: 0.8;
+}
+
+.floating-formulas {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-auto-rows: minmax(120px, 1fr);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.formula-particle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.5rem, 2vw, 2.5rem);
+  color: rgba(255, 255, 255, 0.65);
+  text-shadow: 0 0 20px rgba(253, 230, 138, 0.6);
+  opacity: 0;
+  animation: float 18s ease-in-out infinite;
+}
+
+.dust-particles {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0, transparent 60%),
+    radial-gradient(circle, rgba(253, 230, 138, 0.3) 0, transparent 60%);
+  background-size: 300px 300px, 200px 200px;
+  mix-blend-mode: screen;
+  opacity: 0.45;
+  animation: drift 30s ease-in-out infinite;
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(30px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: perspective(900px) rotateX(45deg) rotateZ(0deg) scale(1);
+  }
+  50% {
+    transform: perspective(900px) rotateX(47deg) rotateZ(8deg) scale(1.04);
+  }
+}
