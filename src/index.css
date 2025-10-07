@@ -15,48 +15,166 @@ body {
   backdrop-filter: blur(36px);
 }
 
-.quantum-field {
+.portal-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.85) 38%, rgba(226, 232, 240, 0.65) 70%, rgba(248, 250, 252, 0.92));
+}
+
+.luminous-core {
   position: absolute;
-  inset: -20%;
-  background: conic-gradient(from 180deg at 50% 50%, rgba(253, 224, 71, 0.35), rgba(250, 204, 21, 0.18), rgba(248, 250, 252, 0.25));
-  filter: blur(180px) saturate(130%);
-  animation: orbit 40s linear infinite;
+  inset: 50% auto auto 50%;
+  width: 140vmax;
+  height: 140vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 48%, transparent 70%);
+  filter: blur(160px);
+  opacity: 0.9;
+  animation: luminousPulse 18s ease-in-out infinite;
+}
+
+.celestial-haze {
+  position: absolute;
+  inset: -30%;
+  background: conic-gradient(from 120deg at 50% 50%, rgba(255, 255, 255, 0.35), rgba(253, 224, 71, 0.22), rgba(255, 255, 255, 0.1));
+  filter: blur(220px) saturate(140%);
+  mix-blend-mode: screen;
+  animation: auroraOrbit 42s linear infinite;
   opacity: 0.8;
 }
 
-.floating-formulas {
+.golden-veil {
   position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-auto-rows: minmax(120px, 1fr);
-  pointer-events: none;
+  inset: -10% -30% 20% -30%;
+  background: radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.45), transparent 55%),
+    radial-gradient(circle at 70% 40%, rgba(253, 213, 86, 0.35), transparent 50%);
+  filter: blur(90px);
   mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: veilPulse 24s ease-in-out infinite;
 }
 
-.formula-particle {
+.aurora-stream {
+  position: absolute;
+  inset: -40% 0 -30% 0;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0) 10%, rgba(248, 250, 252, 0.6) 40%, rgba(253, 224, 71, 0.2) 60%, rgba(255, 255, 255, 0) 90%);
+  filter: blur(80px);
+  mix-blend-mode: lighten;
+  opacity: 0.65;
+  animation: auroraFlow 28s linear infinite;
+}
+
+.string-rings {
+  position: absolute;
+  inset: -15%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(1.5rem, 2vw, 2.5rem);
-  color: rgba(255, 255, 255, 0.65);
-  text-shadow: 0 0 20px rgba(253, 230, 138, 0.6);
-  opacity: 0;
-  animation: float 18s ease-in-out infinite;
+  pointer-events: none;
 }
 
-.dust-particles {
+.string-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(253, 224, 71, 0.45);
+  filter: drop-shadow(0 0 30px rgba(253, 224, 71, 0.35));
+  animation: stringOrbit 36s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.string-ring--one {
+  width: 58vmax;
+  height: 58vmax;
+}
+
+.string-ring--two {
+  width: 74vmax;
+  height: 74vmax;
+  animation-duration: 46s;
+  animation-direction: reverse;
+  opacity: 0.55;
+}
+
+.string-ring--three {
+  width: 96vmax;
+  height: 96vmax;
+  animation-duration: 60s;
+  opacity: 0.35;
+}
+
+.nebula-smoke {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0, transparent 60%),
-    radial-gradient(circle, rgba(253, 230, 138, 0.3) 0, transparent 60%);
-  background-size: 300px 300px, 200px 200px;
+  background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.45), transparent 65%),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(circle at 40% 30%, rgba(253, 213, 86, 0.18), transparent 50%);
+  filter: blur(70px);
   mix-blend-mode: screen;
-  opacity: 0.45;
-  animation: drift 30s ease-in-out infinite;
+  opacity: 0.6;
+  animation: nebulaRise 32s ease-in-out infinite;
 }
 
-@keyframes orbit {
+.particle-stream {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, transparent 70%),
+    radial-gradient(circle, rgba(253, 224, 71, 0.25) 0, transparent 75%);
+  background-size: 260px 260px, 180px 180px;
+  mix-blend-mode: screen;
+  opacity: 0.45;
+  animation: particleGlide 34s ease-in-out infinite;
+}
+
+.equation-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.equation-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: clamp(1.05rem, 1.8vw, 2.4rem);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.92), 0 0 60px rgba(253, 224, 71, 0.45);
+  opacity: 0;
+  animation-name: formulaAscend;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+}
+
+.equation-node--formula {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 38px rgba(253, 213, 86, 0.55), 0 0 64px rgba(250, 250, 210, 0.45);
+}
+
+.equation-node--glyph {
+  font-size: clamp(1.5rem, 2.4vw, 3.1rem);
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.65), 0 0 32px rgba(253, 213, 86, 0.35);
+  animation-duration: 28s;
+}
+
+@keyframes luminousPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.04);
+    opacity: 0.95;
+  }
+}
+
+@keyframes auroraOrbit {
   0% {
     transform: rotate(0deg) scale(1);
   }
@@ -68,32 +186,86 @@ body {
   }
 }
 
-@keyframes float {
-  0% {
-    transform: translateY(20px) scale(0.95);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.9;
+@keyframes veilPulse {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.7;
   }
   50% {
-    transform: translateY(-10px) scale(1.05);
-  }
-  80% {
+    transform: scale(1.05) translateY(-2%);
     opacity: 0.9;
-  }
-  100% {
-    transform: translateY(30px) scale(0.9);
-    opacity: 0;
   }
 }
 
-@keyframes drift {
-  0%,
-  100% {
-    transform: perspective(900px) rotateX(45deg) rotateZ(0deg) scale(1);
+@keyframes auroraFlow {
+  0% {
+    transform: translate3d(-10%, -4%, 0) rotate(0deg);
   }
   50% {
-    transform: perspective(900px) rotateX(47deg) rotateZ(8deg) scale(1.04);
+    transform: translate3d(10%, 6%, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(-10%, -4%, 0) rotate(0deg);
+  }
+}
+
+@keyframes stringOrbit {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.03);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes nebulaRise {
+  0% {
+    transform: translate3d(0, 4%, 0) scale(1.02);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(0, -4%, 0) scale(1.05);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(0, 4%, 0) scale(1.02);
+    opacity: 0.55;
+  }
+}
+
+@keyframes particleGlide {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+}
+
+@keyframes formulaAscend {
+  0% {
+    transform: translate(-50%, -40%) scale(0.96);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate(-50%, -60%) scale(1.02);
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -80%) scale(0.94);
+    opacity: 0;
   }
 }
