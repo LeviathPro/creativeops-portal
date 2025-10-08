@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -32,35 +32,12 @@ const payoutMix = [
 
 const COLORS = ["#fef08a", "#fde68a", "#facc15", "#f97316"];
 
-const weatherBriefs = [
-  {
-    id: "findlay",
-    label: "Findlay, OH — HQ",
-    today: "78°F / Clear",
-    outlook: "Light winds, ideal build conditions",
-    radar: "https://maps.google.com/maps?q=Findlay%20Ohio&z=11&output=embed"
-  },
-  {
-    id: "kenton",
-    label: "Kenton, OH — Current Project",
-    today: "75°F / Partly Cloudy",
-    outlook: "Rain window Thursday 3-6pm",
-    radar: "https://maps.google.com/maps?q=Kenton%20Ohio&z=11&output=embed"
-  },
-  {
-    id: "bowling",
-    label: "Bowling Green, OH — Staging",
-    today: "74°F / Breezy",
-    outlook: "Monitor gusts impacting fence panels",
-    radar: "https://maps.google.com/maps?q=Bowling%20Green%20Ohio&z=11&output=embed"
-  }
-];
-
 const iframeClasses = "h-72 w-full rounded-3xl border border-white/10";
 
 const TabContent = ({ activeTab, role, user }) => {
-  const { data } = useData();
-  const [selectedWeather, setSelectedWeather] = useState(weatherBriefs[0]);
+  const { data, theme, themes, setTheme, actions } = useData();
+  const [selectedWeatherId, setSelectedWeatherId] = useState(data.weatherStations?.[0]?.id ?? null);
+  const [timeOffDraft, setTimeOffDraft] = useState({ date: "", reason: "" });
 
   const projectLocations = useMemo(
     () =>
@@ -71,6 +48,32 @@ const TabContent = ({ activeTab, role, user }) => {
       })),
     [data.jobs]
   );
+
+  useEffect(() => {
+    if (!data.weatherStations?.length) return;
+    if (!selectedWeatherId || !data.weatherStations.some((station) => station.id === selectedWeatherId)) {
+      setSelectedWeatherId(data.weatherStations[0].id);
+    }
+  }, [data.weatherStations, selectedWeatherId]);
+
+  const selectedWeather = useMemo(
+    () => data.weatherStations?.find((station) => station.id === selectedWeatherId) ?? data.weatherStations?.[0],
+    [data.weatherStations, selectedWeatherId]
+  );
+
+  const handleTimeOffRequest = () => {
+    if (!timeOffDraft.date || !timeOffDraft.reason) return;
+    const requestId = `TO-${Date.now()}`;
+    actions.addEntry("timeOff", {
+      id: requestId,
+      name: user?.name ?? "Team Member",
+      role: role,
+      date: timeOffDraft.date,
+      reason: timeOffDraft.reason,
+      status: "Pending"
+    });
+    setTimeOffDraft({ date: "", reason: "" });
+  };
 
   switch (activeTab) {
     case "dashboard":
@@ -168,22 +171,22 @@ const TabContent = ({ activeTab, role, user }) => {
               role={role}
               allowEditRoles={["ADMIN"]}
               columns={[
-                { key: "id", label: "ID" },
-                { key: "item", label: "Item" },
-                { key: "owner", label: "Owner" },
-                { key: "status", label: "Status" }
+                { key: "id", label: "ID", placeholder: "e.g., APP-003" },
+                { key: "item", label: "Item", placeholder: "ACH batch or invoice" },
+                { key: "owner", label: "Owner", placeholder: "Assign approver" },
+                { key: "status", label: "Status", placeholder: "Pending / Approved" }
               ]}
               newEntryLabel="Add Approval"
             />
             <ModuleCard title="Weather Intel" subtitle="Site Conditions" accent="gold">
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                  {weatherBriefs.map((brief) => (
+                  {data.weatherStations?.map((brief) => (
                     <button
                       key={brief.id}
-                      onClick={() => setSelectedWeather(brief)}
+                      onClick={() => setSelectedWeatherId(brief.id)}
                       className={`rounded-full border px-4 py-1 text-[10px] uppercase tracking-[0.4em] transition ${
-                        selectedWeather.id === brief.id
+                        selectedWeather?.id === brief.id
                           ? "border-amber-300 bg-amber-200/20 text-amber-100"
                           : "border-white/20 text-white/70 hover:border-amber-200/40"
                       }`}
@@ -194,10 +197,17 @@ const TabContent = ({ activeTab, role, user }) => {
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-white/10 p-4 text-sm text-white/80">
                   <p className="text-[10px] uppercase tracking-[0.4em] text-amber-200/70">Current</p>
-                  <p className="text-lg font-semibold text-white">{selectedWeather.today}</p>
-                  <p className="mt-2 text-xs text-white/70">{selectedWeather.outlook}</p>
+                  <p className="text-lg font-semibold text-white">{selectedWeather?.today ?? "--"}</p>
+                  <p className="mt-2 text-xs text-white/70">{selectedWeather?.outlook ?? "Set forecast"}</p>
                 </div>
-                <iframe title={`radar-${selectedWeather.id}`} src={selectedWeather.radar} className={iframeClasses} allowFullScreen />
+                {selectedWeather && (
+                  <iframe
+                    title={`radar-${selectedWeather.id}`}
+                    src={selectedWeather.radar}
+                    className={iframeClasses}
+                    allowFullScreen
+                  />
+                )}
               </div>
             </ModuleCard>
           </div>
@@ -213,12 +223,18 @@ const TabContent = ({ activeTab, role, user }) => {
           role={role}
           allowEditRoles={["ADMIN", "FOREMAN"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "name", label: "Name" },
-            { key: "role", label: "Role" },
-            { key: "certifications", label: "Certifications", type: "textarea", rows: 2 },
-            { key: "skills", label: "Skills", type: "textarea", rows: 2 },
-            { key: "status", label: "Status" }
+            { key: "id", label: "ID", placeholder: "e.g., CTR-003" },
+            { key: "name", label: "Name", placeholder: "Contractor name" },
+            { key: "role", label: "Role", placeholder: "Foreman / Crew" },
+            {
+              key: "certifications",
+              label: "Certifications",
+              type: "textarea",
+              rows: 2,
+              placeholder: "List OSHA, equipment, etc."
+            },
+            { key: "skills", label: "Skills", type: "textarea", rows: 2, placeholder: "Key capabilities" },
+            { key: "status", label: "Status", placeholder: "Active / Onboarding" }
           ]}
           newEntryLabel="Add Contractor"
         />
@@ -234,13 +250,13 @@ const TabContent = ({ activeTab, role, user }) => {
             role={role}
             allowEditRoles={["ADMIN", "FOREMAN", "TEAM_LEAD"]}
             columns={[
-              { key: "id", label: "ID" },
-              { key: "client", label: "Client" },
-              { key: "scope", label: "Scope", type: "textarea", rows: 2 },
-              { key: "location", label: "Location" },
-              { key: "timeline", label: "Timeline" },
-              { key: "crew", label: "Crew" },
-              { key: "blueprint", label: "Blueprint" }
+              { key: "id", label: "ID", placeholder: "e.g., JOB-1044" },
+              { key: "client", label: "Client", placeholder: "Client name" },
+              { key: "scope", label: "Scope", type: "textarea", rows: 2, placeholder: "Deck, fence, etc." },
+              { key: "location", label: "Location", placeholder: "City, State" },
+              { key: "timeline", label: "Timeline", placeholder: "Phase or milestone" },
+              { key: "crew", label: "Crew", placeholder: "Assigned crew" },
+              { key: "blueprint", label: "Blueprint", placeholder: "File reference" }
             ]}
             newEntryLabel="Add Project"
           />
@@ -263,10 +279,10 @@ const TabContent = ({ activeTab, role, user }) => {
             role={role}
             allowEditRoles={["ADMIN"]}
             columns={[
-              { key: "id", label: "Batch ID" },
-              { key: "recipient", label: "Recipient" },
-              { key: "amount", label: "Amount" },
-              { key: "status", label: "Status" }
+              { key: "id", label: "Batch ID", placeholder: "e.g., ACH-7423" },
+              { key: "recipient", label: "Recipient", placeholder: "Payee" },
+              { key: "amount", label: "Amount", placeholder: "$0.00" },
+              { key: "status", label: "Status", placeholder: "Pending / Approved" }
             ]}
             newEntryLabel="Queue ACH"
           />
@@ -279,25 +295,66 @@ const TabContent = ({ activeTab, role, user }) => {
         </div>
       );
 
+    case "payroll":
+      return (
+        <EditableTable
+          collection="payroll"
+          title="Payroll Summary"
+          description="Weekly payouts"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., PAY-003" },
+            { key: "name", label: "Team Member", placeholder: "Crew member" },
+            { key: "role", label: "Role", placeholder: "Crew / Foreman" },
+            { key: "weekEnding", label: "Week Ending", placeholder: "YYYY-MM-DD" },
+            { key: "hours", label: "Hours", placeholder: "0" },
+            { key: "gross", label: "Gross", placeholder: "$0.00" },
+            { key: "status", label: "Status", placeholder: "Approved / Processing" }
+          ]}
+          newEntryLabel="Add Payroll Record"
+        />
+      );
+
     case "form1099":
       return (
-        <ModuleCard title="1099 Command" subtitle="Compliance" accent="gold">
-          <ul className="space-y-3 text-sm text-white/80">
-            <li>• Auto-generate 1099-NEC drafts from approved payouts and contractor W-9 files.</li>
-            <li>• Submit directly to the IRS IRIS API with encrypted payloads.</li>
-            <li>• Allow contractors to download secure copies via the client document vault.</li>
-          </ul>
-        </ModuleCard>
+        <EditableTable
+          collection="form1099"
+          title="1099 Filings"
+          description="Compliance queue"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., 1099-2024-01" },
+            { key: "contractor", label: "Contractor", placeholder: "Recipient name" },
+            { key: "taxYear", label: "Tax Year", placeholder: "2024" },
+            { key: "status", label: "Status", placeholder: "Draft / Filed" },
+            { key: "notes", label: "Notes", type: "textarea", rows: 2, placeholder: "Submission detail" }
+          ]}
+          newEntryLabel="Add Filing"
+        />
       );
 
     case "schedule":
       return (
-        <ModuleCard title="Scheduling Matrix" subtitle="Gantt" accent="purple">
-          <p className="text-sm text-white/80">
-            Drag-and-drop crews between tasks, hold time slots when Findlay or project-specific weather dips, and push change-order
-            adjustments to the timeline. Foremen can stage their crew availability, while apprentices view read-only calendars.
-          </p>
-        </ModuleCard>
+        <EditableTable
+          collection="schedules"
+          title="Scheduling Matrix"
+          description="Crew assignments"
+          role={role}
+          allowEditRoles={["ADMIN", "FOREMAN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., SCH-003" },
+            { key: "role", label: "Role", placeholder: "Crew / Foreman" },
+            { key: "date", label: "Date", placeholder: "YYYY-MM-DD" },
+            { key: "assignment", label: "Assignment", type: "textarea", rows: 2, placeholder: "Task summary" },
+            { key: "crew", label: "Crew", placeholder: "Crew name" },
+            { key: "site", label: "Site", placeholder: "Project location" },
+            { key: "start", label: "Start", placeholder: "07:00" },
+            { key: "end", label: "End", placeholder: "15:30" }
+          ]}
+          newEntryLabel="Add Schedule"
+        />
       );
 
     case "materials":
@@ -309,11 +366,11 @@ const TabContent = ({ activeTab, role, user }) => {
           role={role}
           allowEditRoles={["ADMIN", "FOREMAN"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "item", label: "Item" },
-            { key: "vendor", label: "Vendor" },
-            { key: "quantity", label: "Quantity" },
-            { key: "status", label: "Status" }
+            { key: "id", label: "ID", placeholder: "e.g., MAT-003" },
+            { key: "item", label: "Item", placeholder: "Material description" },
+            { key: "vendor", label: "Vendor", placeholder: "Supplier" },
+            { key: "quantity", label: "Quantity", placeholder: "0" },
+            { key: "status", label: "Status", placeholder: "Ordered / Delivered" }
           ]}
           newEntryLabel="Add Material"
         />
@@ -321,12 +378,22 @@ const TabContent = ({ activeTab, role, user }) => {
 
     case "quotes":
       return (
-        <ModuleCard title="Quotes &amp; Estimates" subtitle="Sales" accent="gold">
-          <p className="text-sm text-white/80">
-            Admins craft dynamic quotes with margin projections and tax intelligence. Clients can request upgrades directly within
-            the Change Orders tab, feeding delta pricing here for review before approvals.
-          </p>
-        </ModuleCard>
+        <EditableTable
+          collection="quotes"
+          title="Quotes &amp; Estimates"
+          description="Sales intelligence"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., Q-4503" },
+            { key: "client", label: "Client", placeholder: "Client name" },
+            { key: "scope", label: "Scope", type: "textarea", rows: 2, placeholder: "Project summary" },
+            { key: "estimator", label: "Estimator", placeholder: "Owner" },
+            { key: "value", label: "Value", placeholder: "$0.00" },
+            { key: "status", label: "Status", placeholder: "Draft / Issued" }
+          ]}
+          newEntryLabel="Add Quote"
+        />
       );
 
     case "changeOrders":
@@ -338,11 +405,11 @@ const TabContent = ({ activeTab, role, user }) => {
           role={role}
           allowEditRoles={["ADMIN", "TEAM_LEAD", "CLIENT"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "project", label: "Project" },
-            { key: "request", label: "Request", type: "textarea", rows: 2 },
-            { key: "delta", label: "Delta" },
-            { key: "status", label: "Status" }
+            { key: "id", label: "ID", placeholder: "e.g., CO-303" },
+            { key: "project", label: "Project", placeholder: "Project name" },
+            { key: "request", label: "Request", type: "textarea", rows: 2, placeholder: "Upgrade description" },
+            { key: "delta", label: "Delta", placeholder: "$0.00" },
+            { key: "status", label: "Status", placeholder: "Pending / Approved" }
           ]}
           newEntryLabel="Submit Change Order"
         />
@@ -357,20 +424,83 @@ const TabContent = ({ activeTab, role, user }) => {
           role={role}
           allowEditRoles={["ADMIN", "FOREMAN", "TEAM_LEAD"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "crew", label: "Crew" },
-            { key: "day", label: "Day" },
-            { key: "hours", label: "Hours" },
-            { key: "weather", label: "Weather" }
+            { key: "id", label: "ID", placeholder: "e.g., TS-003" },
+            { key: "crew", label: "Crew", placeholder: "Crew name" },
+            { key: "day", label: "Day", placeholder: "YYYY-MM-DD" },
+            { key: "hours", label: "Hours", placeholder: "0" },
+            { key: "weather", label: "Weather", placeholder: "Site weather" }
           ]}
           newEntryLabel="Add Entry"
         />
       );
 
+    case "timeOff":
+      return (
+        <div className="space-y-6">
+          {role !== "ADMIN" && (
+            <ModuleCard title="Request Time Off" subtitle="Crew portal" accent="emerald">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.4em] text-white/60">Date</label>
+                  <input
+                    type="date"
+                    value={timeOffDraft.date}
+                    onChange={(event) => setTimeOffDraft((prev) => ({ ...prev, date: event.target.value }))}
+                    className="rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.4em] text-white/60">Reason</label>
+                  <textarea
+                    rows={3}
+                    value={timeOffDraft.reason}
+                    onChange={(event) => setTimeOffDraft((prev) => ({ ...prev, reason: event.target.value }))}
+                    placeholder="Explain why you need time away"
+                    className="rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:italic placeholder-white/50 focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-white/60">Admins will review and update the status in real time.</p>
+                <button
+                  onClick={handleTimeOffRequest}
+                  disabled={!timeOffDraft.date || !timeOffDraft.reason}
+                  className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] shadow-lg transition ${
+                    timeOffDraft.date && timeOffDraft.reason
+                      ? "bg-gradient-to-r from-emerald-400/80 to-teal-500/80 text-black"
+                      : "bg-white/10 text-white/40"
+                  }`}
+                >
+                  Submit Request
+                </button>
+              </div>
+            </ModuleCard>
+          )}
+          <EditableTable
+            collection="timeOff"
+            title="Time Off Ledger"
+            description="Approvals &amp; status"
+            role={role}
+            allowEditRoles={["ADMIN"]}
+            allowCreateRoles={["ADMIN"]}
+            allowRemoveRoles={["ADMIN"]}
+            columns={[
+              { key: "id", label: "ID", placeholder: "e.g., TO-003" },
+              { key: "name", label: "Name", placeholder: "Team member" },
+              { key: "role", label: "Role", placeholder: "Crew / Apprentice" },
+              { key: "date", label: "Date", placeholder: "YYYY-MM-DD" },
+              { key: "reason", label: "Reason", type: "textarea", rows: 2, placeholder: "Why" },
+              { key: "status", label: "Status", placeholder: "Pending / Approved" }
+            ]}
+            newEntryLabel="Add Time Off"
+          />
+        </div>
+      );
+
     case "weather":
       return (
         <div className="space-y-6">
-          {weatherBriefs.map((brief) => (
+          {data.weatherStations?.map((brief) => (
             <ModuleCard key={brief.id} title={brief.label} subtitle="Hyperlocal" accent="gold">
               <p className="text-sm text-white/80">Current: {brief.today}</p>
               <p className="text-xs text-white/70">{brief.outlook}</p>
@@ -423,10 +553,10 @@ const TabContent = ({ activeTab, role, user }) => {
           role={role}
           allowEditRoles={["ADMIN"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "client", label: "Client" },
-            { key: "amount", label: "Amount" },
-            { key: "status", label: "Status" }
+            { key: "id", label: "ID", placeholder: "e.g., INV-9003" },
+            { key: "client", label: "Client", placeholder: "Client name" },
+            { key: "amount", label: "Amount", placeholder: "$0.00" },
+            { key: "status", label: "Status", placeholder: "Awaiting / Paid" }
           ]}
           newEntryLabel="Add Invoice"
         />
@@ -442,10 +572,10 @@ const TabContent = ({ activeTab, role, user }) => {
             role={role}
             allowEditRoles={["ADMIN"]}
             columns={[
-              { key: "id", label: "ID" },
-              { key: "title", label: "Title" },
-              { key: "access", label: "Access" },
-              { key: "updated", label: "Updated" }
+              { key: "id", label: "ID", placeholder: "e.g., DOC-003" },
+              { key: "title", label: "Title", placeholder: "Document name" },
+              { key: "access", label: "Access", placeholder: "Admin / Client" },
+              { key: "updated", label: "Updated", placeholder: "YYYY-MM-DD" }
             ]}
             newEntryLabel="Add Document"
           />
@@ -456,10 +586,10 @@ const TabContent = ({ activeTab, role, user }) => {
             role={role}
             allowEditRoles={["ADMIN", "CLIENT"]}
             columns={[
-              { key: "id", label: "ID" },
-              { key: "scope", label: "Scope" },
-              { key: "summary", label: "Summary", type: "textarea", rows: 2 },
-              { key: "shopLink", label: "Shop Link" }
+              { key: "id", label: "ID", placeholder: "e.g., CG-003" },
+              { key: "scope", label: "Scope", placeholder: "Deck / Fence" },
+              { key: "summary", label: "Summary", type: "textarea", rows: 2, placeholder: "Care overview" },
+              { key: "shopLink", label: "Shop Link", placeholder: "Accessory or URL" }
             ]}
             newEntryLabel="Add Care Guide"
           />
@@ -468,43 +598,103 @@ const TabContent = ({ activeTab, role, user }) => {
 
     case "analytics":
       return (
-        <ModuleCard title="Analytics" subtitle="Predictive" accent="purple">
-          <p className="text-sm text-white/80">
-            Track revenue velocity, crew utilization, and forecast backlog. Integrate Power BI or Looker Studio dashboards for
-            deep analytics—all within the Creative Ops shell.
-          </p>
-        </ModuleCard>
+        <EditableTable
+          collection="analyticsReports"
+          title="Analytics Library"
+          description="AI + BI signals"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., AN-003" },
+            { key: "name", label: "Report", placeholder: "Report name" },
+            { key: "cadence", label: "Cadence", placeholder: "Daily / Weekly" },
+            { key: "owner", label: "Owner", placeholder: "Ops / Finance" },
+            { key: "notes", label: "Notes", type: "textarea", rows: 2, placeholder: "Highlights" }
+          ]}
+          newEntryLabel="Add Report"
+        />
       );
 
     case "security":
       return (
-        <ModuleCard title="Security &amp; Audit" subtitle="Shield" accent="emerald">
-          <ul className="space-y-3 text-sm text-white/80">
-            <li>• WebAuthn + TOTP enforced for admin accounts.</li>
-            <li>• IP whitelisting available for office and secure remote networks.</li>
-            <li>• Immutable audit log for payouts, change orders, and document access.</li>
-          </ul>
-        </ModuleCard>
+        <EditableTable
+          collection="securityControls"
+          title="Security Controls"
+          description="Shield posture"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., SEC-03" },
+            { key: "control", label: "Control", placeholder: "Security control" },
+            { key: "scope", label: "Scope", placeholder: "Admin / Crew" },
+            { key: "status", label: "Status", placeholder: "Active / Planned" },
+            { key: "owner", label: "Owner", placeholder: "Owner" }
+          ]}
+          newEntryLabel="Add Control"
+        />
       );
 
     case "admin":
       return (
-        <ModuleCard title="Role Management" subtitle="Control" accent="gold">
-          <p className="text-sm text-white/80">
-            Admins assign roles, activate MFA, and configure approval chains. Promote apprentices into crew, crew into team leads,
-            and eventually foreman based on certifications uploaded in the Contractor tab.
-          </p>
-        </ModuleCard>
+        <EditableTable
+          collection="adminTasks"
+          title="Role Management"
+          description="RBAC workflow"
+          role={role}
+          allowEditRoles={["ADMIN"]}
+          columns={[
+            { key: "id", label: "ID", placeholder: "e.g., ADM-03" },
+            { key: "user", label: "User", placeholder: "Team member" },
+            { key: "request", label: "Request", type: "textarea", rows: 2, placeholder: "Promotion / access" },
+            { key: "status", label: "Status", placeholder: "Queued / Approved" },
+            { key: "notes", label: "Notes", type: "textarea", rows: 2, placeholder: "Context" }
+          ]}
+          newEntryLabel="Add Admin Task"
+        />
       );
 
     case "settings":
       return (
-        <ModuleCard title="Settings" subtitle="Preferences" accent="purple">
-          <p className="text-sm text-white/80">
-            Customize notification channels, set weather alert thresholds, toggle immersive soundscapes, and manage offline cache
-            refresh schedules for field tablets.
-          </p>
-        </ModuleCard>
+        <div className="space-y-6">
+          <ModuleCard title="Theme Selection" subtitle="Experience" accent="purple">
+            <p className="text-sm text-white/70">
+              Choose the control-room aesthetic that best matches your mission. Themes update instantly across the portal.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {themes.map((option) => {
+                const active = theme === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => setTheme(option.id)}
+                    className={`rounded-3xl border px-4 py-4 text-left transition ${
+                      active
+                        ? "border-amber-300 bg-amber-100/10 text-white"
+                        : "border-white/15 text-white/80 hover:border-amber-200/40"
+                    }`}
+                  >
+                    <p className="text-xs uppercase tracking-[0.4em] text-amber-200/70">{option.label}</p>
+                    <p className="mt-2 text-sm text-white/80">{option.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </ModuleCard>
+          <EditableTable
+            collection="notificationChannels"
+            title="Notifications"
+            description="Alerts &amp; digests"
+            role={role}
+            allowEditRoles={["ADMIN"]}
+            columns={[
+              { key: "id", label: "ID", placeholder: "e.g., NT-03" },
+              { key: "channel", label: "Channel", placeholder: "SMS / Email" },
+              { key: "description", label: "Description", type: "textarea", rows: 2, placeholder: "Who receives it" },
+              { key: "status", label: "Status", placeholder: "Active / Paused" }
+            ]}
+            newEntryLabel="Add Channel"
+          />
+        </div>
       );
 
     case "client":
@@ -523,6 +713,22 @@ const TabContent = ({ activeTab, role, user }) => {
               kits, lighting, and upgrades.
             </p>
           </ModuleCard>
+          <EditableTable
+            collection="clients"
+            title="Client Directory"
+            description="Project access"
+            role={role}
+            allowEditRoles={["ADMIN"]}
+            columns={[
+              { key: "id", label: "ID", placeholder: "e.g., CLIENT-003" },
+              { key: "name", label: "Name", placeholder: "Client name" },
+              { key: "contact", label: "Contact", placeholder: "Email / phone" },
+              { key: "project", label: "Project", placeholder: "Project title" },
+              { key: "progress", label: "Progress", placeholder: "0%" },
+              { key: "nextStep", label: "Next Step", placeholder: "Upcoming milestone" }
+            ]}
+            newEntryLabel="Add Client"
+          />
         </div>
       );
 
@@ -533,12 +739,13 @@ const TabContent = ({ activeTab, role, user }) => {
           title="Apprentice Academy"
           description="Onboarding modules"
           role={role}
-          allowEditRoles={["ADMIN", "TEAM_LEAD"]}
+          allowEditRoles={["ADMIN", "TEAM_LEAD", "FOREMAN"]}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "module", label: "Module" },
-            { key: "format", label: "Format" },
-            { key: "status", label: "Status" }
+            { key: "id", label: "ID", placeholder: "e.g., TR-104" },
+            { key: "module", label: "Module", placeholder: "Training topic" },
+            { key: "format", label: "Format", placeholder: "VR / Video" },
+            { key: "status", label: "Status", placeholder: "Assigned / Complete" },
+            { key: "audience", label: "Audience", placeholder: "Apprentice / Crew" }
           ]}
           newEntryLabel="Add Module"
         />

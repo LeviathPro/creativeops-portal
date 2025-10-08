@@ -10,13 +10,14 @@ const createEmptyRow = (columns) =>
 
 const InputField = ({ column, value, onChange }) => {
   const commonClasses =
-    "w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/40 focus:border-amber-400 focus:outline-none";
+    "w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:italic placeholder-white/50 focus:border-amber-400 focus:outline-none";
   if (column.type === "textarea") {
     return (
       <textarea
         rows={column.rows ?? 3}
         className={`${commonClasses} resize-none`}
         value={value}
+        placeholder={column.placeholder}
         onChange={(event) => onChange(event.target.value)}
       />
     );
@@ -27,6 +28,7 @@ const InputField = ({ column, value, onChange }) => {
         type="number"
         className={commonClasses}
         value={value}
+        placeholder={column.placeholder}
         onChange={(event) => onChange(event.target.value)}
       />
     );
@@ -38,6 +40,11 @@ const InputField = ({ column, value, onChange }) => {
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
+        {column.placeholder && (
+          <option value="" disabled>
+            {column.placeholder}
+          </option>
+        )}
         {column.options.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -51,6 +58,7 @@ const InputField = ({ column, value, onChange }) => {
       type="text"
       className={commonClasses}
       value={value}
+      placeholder={column.placeholder}
       onChange={(event) => onChange(event.target.value)}
     />
   );
@@ -63,6 +71,8 @@ const EditableTable = ({
   columns,
   role,
   allowEditRoles = ["ADMIN"],
+  allowCreateRoles,
+  allowRemoveRoles,
   newEntryLabel = "Add Entry"
 }) => {
   const {
@@ -70,7 +80,11 @@ const EditableTable = ({
     actions: { addEntry, updateEntry, removeEntry }
   } = useData();
   const rows = data[collection] ?? [];
+  const createRoles = allowCreateRoles ?? allowEditRoles;
+  const removeRoles = allowRemoveRoles ?? allowEditRoles;
   const canEdit = allowEditRoles.includes(role);
+  const canCreate = createRoles.includes(role);
+  const canRemove = removeRoles.includes(role);
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState({});
   const [newRow, setNewRow] = useState(() => createEmptyRow(columns));
@@ -127,7 +141,7 @@ const EditableTable = ({
         <h3 className="text-xl font-semibold text-white">{title}</h3>
       </div>
 
-      {canEdit && (
+      {canCreate && (
         <div className="space-y-3 rounded-2xl border border-white/5 bg-white/5 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/60">Create New</p>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
@@ -177,16 +191,18 @@ const EditableTable = ({
                     )}
                   </div>
                 ))}
-                {canEdit && (
+                {(canEdit || canRemove) && (
                   <div className="flex flex-col items-end justify-center gap-2">
                     {isEditing ? (
                       <>
-                        <button
-                          onClick={handleSave}
-                          className="w-full rounded-full bg-emerald-400/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-black"
-                        >
-                          Save
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={handleSave}
+                            className="w-full rounded-full bg-emerald-400/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-black"
+                          >
+                            Save
+                          </button>
+                        )}
                         <button
                           onClick={() => setEditingId(null)}
                           className="w-full rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-white/70"
@@ -196,18 +212,22 @@ const EditableTable = ({
                       </>
                     ) : (
                       <>
-                        <button
-                          onClick={() => handleStartEdit(row)}
-                          className="w-full rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-white/80"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(row.id)}
-                          className="w-full rounded-full border border-rose-200/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200/80"
-                        >
-                          Remove
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={() => handleStartEdit(row)}
+                            className="w-full rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-white/80"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {canRemove && (
+                          <button
+                            onClick={() => handleDelete(row.id)}
+                            className="w-full rounded-full border border-rose-200/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200/80"
+                          >
+                            Remove
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
