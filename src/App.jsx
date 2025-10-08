@@ -150,7 +150,7 @@ const App = () => {
             >
               <motion.div initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}>
                 <p className="text-xs uppercase tracking-[0.6em] text-amber-500/80">Creative Deck &amp; Fence, LLC</p>
-                <h1 className="mt-4 text-5xl font-semibold leading-tight text-white md:text-6xl">
+                <h1 className="mt-4 text-5xl font-semibold leading-tight text-white drop-shadow-[0_0_24px_rgba(0,0,0,0.6)] md:text-6xl">
                   Creative Ops Portal
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm text-white/80">

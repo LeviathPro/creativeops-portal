@@ -15,6 +15,135 @@ body {
   backdrop-filter: blur(36px);
 }
 
+.portal-button__outer-glow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(253, 224, 71, 0.4) 40%, rgba(255, 255, 255, 0.15) 70%,
+      rgba(255, 255, 255, 0));
+  filter: blur(32px);
+  opacity: 0.9;
+}
+
+.portal-button__halo {
+  position: absolute;
+  inset: 4%;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.45), inset 0 0 120px rgba(15, 23, 42, 0.85);
+  background: radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.18), rgba(15, 23, 42, 0.92) 60%, rgba(15, 23, 42, 0.95) 80%);
+  opacity: 0.85;
+}
+
+.portal-button__inner-shadow {
+  position: absolute;
+  inset: 18%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(12, 12, 12, 0.95) 0%, rgba(12, 12, 12, 0.75) 65%, rgba(30, 41, 59, 0.35) 95%);
+  box-shadow: inset 0 0 65px rgba(0, 0, 0, 0.95);
+}
+
+.portal-button__label {
+  position: relative;
+  font-size: 0.72rem;
+  letter-spacing: 0.55em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.85), 0 0 36px rgba(253, 224, 71, 0.45);
+}
+
+.portal-mandala {
+  position: absolute;
+  inset: 16%;
+  width: 68%;
+  height: 68%;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.55));
+}
+
+.portal-mandala * {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mandala-orbit {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 0.9;
+  stroke-dasharray: 6 18;
+  animation: mandalaSpin 24s linear infinite;
+}
+
+.mandala-orbit--mid {
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-dasharray: 3 12;
+  animation-duration: 36s;
+  animation-direction: reverse;
+  opacity: 0.75;
+}
+
+.mandala-orbit--inner {
+  stroke: rgba(253, 224, 71, 0.65);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 8;
+  animation-duration: 18s;
+}
+
+.mandala-polygon {
+  stroke: rgba(255, 255, 255, 0.72);
+  stroke-width: 0.8;
+  stroke-dasharray: 22 10;
+  animation: mandalaFold 12s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.mandala-polygon--tri {
+  stroke: rgba(255, 255, 255, 0.5);
+  animation-duration: 10s;
+  animation-delay: -2s;
+}
+
+.mandala-polygon--diamond {
+  stroke: rgba(253, 224, 71, 0.55);
+  stroke-dasharray: 18 12;
+  animation-duration: 14s;
+  animation-direction: reverse;
+  opacity: 0.8;
+}
+
+.mandala-suture {
+  stroke: rgba(253, 224, 71, 0.7);
+  stroke-width: 0.6;
+  stroke-dasharray: 18 9;
+  animation: mandalaSuture 16s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+.mandala-suture--counter {
+  stroke: rgba(255, 255, 255, 0.55);
+  animation-direction: reverse;
+  animation-duration: 18s;
+  opacity: 0.65;
+}
+
+.mandala-ray {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.6;
+  stroke-dasharray: 4 10;
+  animation: mandalaRay 9s ease-in-out infinite;
+}
+
+.mandala-core {
+  mix-blend-mode: screen;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.65));
+}
+
+.portal-button {
+  box-shadow: 0 35px 70px rgba(15, 23, 42, 0.55);
+}
+
 .portal-canvas {
   position: fixed;
   inset: 0;
@@ -196,6 +325,53 @@ body {
   50% {
     transform: scale(1.05) translateY(-2%);
     opacity: 0.9;
+  }
+}
+
+@keyframes mandalaSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mandalaFold {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg) scale(0.96);
+    opacity: 0.75;
+  }
+  50% {
+    stroke-dashoffset: 120;
+    transform: rotate(6deg) scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes mandalaSuture {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg);
+  }
+  50% {
+    stroke-dashoffset: 90;
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes mandalaRay {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.4;
+  }
+  50% {
+    stroke-dashoffset: 45;
+    opacity: 0.85;
   }
 }
 
