@@ -135,9 +135,9 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-white">
+    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white">
       <VideoBackground />
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
         <AnimatePresence mode="wait">
           {step === "landing" && (
             <motion.section
