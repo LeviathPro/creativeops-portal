@@ -4,7 +4,7 @@ const App = () => {
   const [step, setStep] = useState("landing"); // landing → portal → dashboard
 
   return (
-    <div className="h-screen w-screen overflow-hidden">
+    <div className="min-h-screen w-full overflow-x-hidden">
       {/* Animated gradient background */}
       <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-purple-700 via-pink-600 to-blue-600 animate-gradient bg-[length:400%_400%]"></div>
 
