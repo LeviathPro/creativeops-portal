@@ -1,4 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
+import {
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
 import ModuleCard from "./ModuleCard";
 import EditableTable from "./EditableTable";
 import { useData } from "./DataContext";
@@ -87,57 +100,134 @@ const TabContent = ({ activeTab, role, user }) => {
           <div className="grid gap-6 lg:grid-cols-3">
             <ModuleCard title="Weekly Impact" subtitle="Forecast" accent="gold">
               <div className="h-64">
-                <div className="flex h-full items-end justify-between gap-4">
-                  {weeklyPerformance.map((entry) => {
-                    const maxJobs = Math.max(...weeklyPerformance.map((d) => d.jobs));
-                    const maxRevenue = Math.max(...weeklyPerformance.map((d) => d.revenue));
-                    const jobsHeight = Math.max((entry.jobs / maxJobs) * 100, 6);
-                    const revenueHeight = Math.max((entry.revenue / maxRevenue) * 100, 6);
-                    return (
-                      <div key={entry.name} className="flex flex-1 flex-col items-center gap-3">
-                        <div className="flex h-full w-full items-end justify-center gap-2">
-                          <div className="relative h-full w-6 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="absolute bottom-0 left-0 w-full rounded-full bg-gradient-to-t from-amber-400 via-amber-200 to-amber-50"
-                              style={{ height: `${jobsHeight}%` }}
-                            />
-                          </div>
-                          <div className="relative h-full w-6 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="absolute bottom-0 left-0 w-full rounded-full bg-gradient-to-t from-orange-500 via-orange-300 to-amber-100"
-                              style={{ height: `${revenueHeight}%` }}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-center text-[0.6rem] uppercase tracking-[0.35em] text-white/70">
-                          <span>{entry.name}</span>
-                          <span className="text-[0.5rem] text-white/55">{entry.jobs} crews</span>
-                          <span className="text-[0.5rem] text-amber-200/85">${(entry.revenue / 1000).toFixed(1)}k</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={weeklyPerformance} margin={{ top: 12, right: 24, left: -12, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="jobsGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#fef08a" stopOpacity={0.95} />
+                        <stop offset="100%" stopColor="#facc15" stopOpacity={0.4} />
+                      </linearGradient>
+                      <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f97316" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="#fb923c" stopOpacity={0.35} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.65)" tickLine={false} axisLine={false} />
+                    <YAxis
+                      yAxisId="jobs"
+                      stroke="rgba(255,255,255,0.65)"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value} crews`}
+                    />
+                    <YAxis
+                      yAxisId="revenue"
+                      orientation="right"
+                      stroke="rgba(255,255,255,0.65)"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(15,23,42,0.9)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "1rem",
+                        color: "#fff"
+                      }}
+                      labelStyle={{ textTransform: "uppercase", letterSpacing: "0.3em", fontSize: "0.6rem" }}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      height={28}
+                      wrapperStyle={{
+                        color: "rgba(255,255,255,0.75)",
+                        fontSize: "0.6rem",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.3em"
+                      }}
+                      formatter={(value) => (value === "jobs" ? "Crew Deployments" : "Revenue")}
+                    />
+                    <Line
+                      yAxisId="jobs"
+                      type="monotone"
+                      dataKey="jobs"
+                      stroke="url(#jobsGradient)"
+                      strokeWidth={3}
+                      dot={{ r: 4, stroke: "rgba(255,255,255,0.7)", strokeWidth: 1.5 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      yAxisId="revenue"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="url(#revenueGradient)"
+                      strokeWidth={3.5}
+                      dot={{ r: 4, stroke: "rgba(255,255,255,0.7)", strokeWidth: 1.5 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </ModuleCard>
 
             <ModuleCard title="Payout Distribution" subtitle="Finance" accent="purple">
-              <div className="flex h-64 w-full flex-col justify-center gap-4">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <defs>
+                      {COLORS.map((color, index) => (
+                        <linearGradient
+                          key={`payout-gradient-${index}`}
+                          id={`payoutGradient-${index}`}
+                          x1="0"
+                          y1="0"
+                          x2="1"
+                          y2="1"
+                        >
+                          <stop offset="0%" stopColor={color} stopOpacity={0.95} />
+                          <stop offset="100%" stopColor="rgba(255,255,255,0.35)" />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={payoutMix}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius="45%"
+                      outerRadius="80%"
+                      paddingAngle={4}
+                      stroke="rgba(255,255,255,0.25)"
+                      strokeWidth={1.5}
+                    >
+                      {payoutMix.map((entry, index) => (
+                        <Cell key={entry.name} fill={`url(#payoutGradient-${index})`} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(15,23,42,0.9)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "1rem",
+                        color: "#fff"
+                      }}
+                      formatter={(value, _name, item) => [`${value}%`, item?.payload?.name ?? ""]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-5 grid gap-2 text-[0.6rem] uppercase tracking-[0.35em] text-white/70">
                 {payoutMix.map((entry, index) => (
-                  <div key={entry.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.35em] text-white/70">
-                      <span>{entry.name}</span>
-                      <span>{entry.value}%</span>
-                    </div>
-                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${entry.value}%`,
-                          background: `linear-gradient(90deg, ${COLORS[index % COLORS.length]}, rgba(255,255,255,0.2))`
-                        }}
+                  <div key={entry.name} className="flex items-center justify-between rounded-full bg-white/5 px-3 py-1">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ background: COLORS[index % COLORS.length] }}
                       />
-                    </div>
+                      {entry.name}
+                    </span>
+                    <span>{entry.value}%</span>
                   </div>
                 ))}
               </div>
