@@ -21,26 +21,39 @@ const formulaFragments = [
 
 const polyGlyphs = ["△", "⬡", "⬣", "◇", "⬢", "⟡", "⬟", "◬"];
 
+const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
 const buildField = () =>
-  Array.from({ length: 48 }).map((_, index) => {
+  Array.from({ length: 54 }).map((_, index) => {
     const isFormula = index % 3 !== 0;
     const text = isFormula
       ? formulaFragments[index % formulaFragments.length]
       : polyGlyphs[index % polyGlyphs.length];
 
-    const top = ((index * 37) % 100) / 100;
-    const left = ((index * 61) % 100) / 100;
+    const top = randomInRange(4, 96);
+    const left = randomInRange(4, 96);
+
+    const style = {
+      top: `${top}%`,
+      left: `${left}%`,
+      animationDelay: `${index * 0.35}s`,
+      animationDuration: `${22 + randomInRange(0, 18)}s`,
+      "--start-x": `${randomInRange(-6, 6).toFixed(2)}vmin`,
+      "--start-y": `${randomInRange(-8, 2).toFixed(2)}vmin`,
+      "--mid-x": `${randomInRange(-12, 12).toFixed(2)}vmin`,
+      "--mid-y": `${randomInRange(-10, 10).toFixed(2)}vmin`,
+      "--end-x": `${randomInRange(-6, 6).toFixed(2)}vmin`,
+      "--end-y": `${randomInRange(-2, 8).toFixed(2)}vmin`,
+      "--start-rot": `${randomInRange(-12, 12).toFixed(2)}deg`,
+      "--mid-rot": `${randomInRange(-60, 60).toFixed(2)}deg`,
+      "--end-rot": `${randomInRange(-24, 24).toFixed(2)}deg`
+    };
 
     return {
       key: index,
       text,
       isFormula,
-      style: {
-        top: `${top * 100}%`,
-        left: `${left * 100}%`,
-        animationDelay: `${index * 0.4}s`,
-        animationDuration: `${18 + (index % 5) * 3}s`
-      }
+      style
     };
   });
 

@@ -49,12 +49,15 @@ const Mandala = () => (
   </svg>
 );
 
-const BlackHoleButton = ({ onClick }) => (
+const BlackHoleButton = ({ onClick, disabled = false }) => (
   <motion.button
-    onClick={onClick}
-    className="portal-button relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-full"
-    whileHover={{ scale: 1.06 }}
-    whileTap={{ scale: 0.97 }}
+    onClick={disabled ? undefined : onClick}
+    disabled={disabled}
+    className={`portal-button relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-full transition-opacity duration-500 ${
+      disabled ? "cursor-wait opacity-80" : ""
+    }`}
+    whileHover={disabled ? undefined : { scale: 1.06 }}
+    whileTap={disabled ? undefined : { scale: 0.97 }}
   >
     <motion.span className="portal-button__outer-glow" variants={glowVariants} animate="pulse" />
     <span className="portal-button__halo" />

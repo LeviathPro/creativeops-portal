@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import VideoBackground from "./components/VideoBackground";
 import BlackHoleButton from "./components/BlackHoleButton";
 import AuthPanel from "./components/AuthPanel";
 import PortalShell from "./components/PortalShell";
 import { DataProvider } from "./components/DataContext";
+import WormholeTransition from "./components/WormholeTransition";
 
 const introVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -72,6 +73,15 @@ const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [user, setUser] = useState(null);
   const [authError, setAuthError] = useState("");
+  const [isWarping, setIsWarping] = useState(false);
+  const warpTimersRef = useRef([]);
+
+  useEffect(() => {
+    return () => {
+      warpTimersRef.current.forEach((timer) => clearTimeout(timer));
+      warpTimersRef.current = [];
+    };
+  }, []);
 
   const userName = useMemo(() => {
     if (!user) return "Guest";
@@ -79,7 +89,17 @@ const App = () => {
   }, [user]);
 
   const handlePortalEntry = () => {
-    setStep("signin");
+    if (isWarping) return;
+    warpTimersRef.current.forEach((timer) => clearTimeout(timer));
+    warpTimersRef.current = [];
+    setIsWarping(true);
+    const toSignin = setTimeout(() => {
+      setStep("signin");
+    }, 1800);
+    const finishWarp = setTimeout(() => {
+      setIsWarping(false);
+    }, 2600);
+    warpTimersRef.current = [toSignin, finishWarp];
   };
 
   const handleRoleSelect = (roleId) => {
@@ -132,11 +152,15 @@ const App = () => {
     setSelectedRole("ADMIN");
     setActiveTab("dashboard");
     setAuthError("");
+    setIsWarping(false);
   };
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white">
       <VideoBackground />
+      <AnimatePresence>
+        {isWarping && <WormholeTransition key="wormhole" />}
+      </AnimatePresence>
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
         <AnimatePresence mode="wait">
           {step === "landing" && (
@@ -153,12 +177,12 @@ const App = () => {
                 <h1 className="mt-4 text-5xl font-semibold leading-tight text-white drop-shadow-[0_0_24px_rgba(0,0,0,0.6)] md:text-6xl">
                   Creative Ops Portal
                 </h1>
-                <p className="mt-4 max-w-2xl text-sm text-white/80">
-                  Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC. Step through the luminous portal
-                  to orchestrate operations across the entire company.
+                <p className="mt-6 max-w-2xl text-sm font-medium uppercase tracking-[0.45em] text-black/75 drop-shadow-[0_0_18px_rgba(255,255,255,0.85)]">
+                  Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC. Step through the luminous
+                  portal to orchestrate operations across the entire company.
                 </p>
               </motion.div>
-              <BlackHoleButton onClick={handlePortalEntry} />
+              <BlackHoleButton onClick={handlePortalEntry} disabled={isWarping} />
             </motion.section>
           )}
 
