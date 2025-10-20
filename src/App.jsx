@@ -7,6 +7,8 @@ import PortalShell from "./components/PortalShell";
 import { DataProvider } from "./components/DataContext";
 import WormholeTransition from "./components/WormholeTransition";
 
+const WORMHOLE_DURATION = 10000;
+
 const introVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
@@ -95,10 +97,10 @@ const App = () => {
     setIsWarping(true);
     const toSignin = setTimeout(() => {
       setStep("signin");
-    }, 1800);
+    }, WORMHOLE_DURATION);
     const finishWarp = setTimeout(() => {
       setIsWarping(false);
-    }, 2600);
+    }, WORMHOLE_DURATION + 800);
     warpTimersRef.current = [toSignin, finishWarp];
   };
 
@@ -177,7 +179,7 @@ const App = () => {
                 <h1 className="mt-4 text-5xl font-semibold leading-tight text-white drop-shadow-[0_0_24px_rgba(0,0,0,0.6)] md:text-6xl">
                   Creative Ops Portal
                 </h1>
-                <p className="mt-6 max-w-2xl text-sm font-medium uppercase tracking-[0.45em] text-black/75 drop-shadow-[0_0_18px_rgba(255,255,255,0.85)]">
+                <p className="mt-6 max-w-2xl text-[0.55rem] font-medium uppercase tracking-[0.6em] text-black/70 drop-shadow-[0_0_18px_rgba(255,255,255,0.85)]">
                   Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC. Step through the luminous
                   portal to orchestrate operations across the entire company.
                 </p>

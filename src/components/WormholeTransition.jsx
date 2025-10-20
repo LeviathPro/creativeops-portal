@@ -5,7 +5,7 @@ const generateRings = () =>
   Array.from({ length: 14 }).map((_, index) => ({
     id: index,
     scale: 0.24 + index * 0.12,
-    delay: index * 0.08,
+    delay: index * 0.18,
     opacity: Math.max(0.15, 1 - index * 0.06)
   }));
 
@@ -14,7 +14,7 @@ const generateFragments = () =>
     id: index,
     angle: (index / 36) * Math.PI * 2,
     distance: 24 + (index % 6) * 6,
-    duration: 1.2 + (index % 5) * 0.18
+    duration: 3.6 + (index % 5) * 0.8
   }));
 
 const WormholeTransition = () => {
@@ -27,7 +27,7 @@ const WormholeTransition = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.45, ease: "easeInOut" }}
+      transition={{ duration: 1.05, ease: "easeInOut" }}
     >
       <div className="wormhole-stars" />
       <div className="wormhole-tunnel">
@@ -40,8 +40,8 @@ const WormholeTransition = () => {
               opacity: ring.opacity
             }}
             initial={{ scale: ring.scale, opacity: 0 }}
-            animate={{ scale: ring.scale * 6, opacity: [0, 1, 0] }}
-            transition={{ duration: 2.4, ease: "easeInOut" }}
+            animate={{ scale: [ring.scale, ring.scale * 2.8, ring.scale * 6.4], opacity: [0, ring.opacity, 0] }}
+            transition={{ duration: 7.6, ease: "easeInOut", repeat: Infinity, repeatType: "loop" }}
           />
         ))}
       </div>
@@ -54,7 +54,7 @@ const WormholeTransition = () => {
               "--fragment-angle": `${fragment.angle}rad`,
               "--fragment-distance": `${fragment.distance}vmin`,
               animationDuration: `${fragment.duration}s`,
-              animationDelay: `${-fragment.duration * 0.6}s`
+              animationDelay: `${-fragment.duration * 0.75}s`
             }}
           />
         ))}

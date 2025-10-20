@@ -186,6 +186,36 @@ body.theme-midnight .portal-button__halo {
   background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.85) 38%, rgba(226, 232, 240, 0.65) 70%, rgba(248, 250, 252, 0.92));
 }
 
+.white-plane {
+  position: absolute;
+  inset: -18%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.75;
+  filter: blur(120px);
+}
+
+.white-plane--primary {
+  background: radial-gradient(circle at 32% 44%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.6) 42%, rgba(241, 245, 249, 0.25) 68%, transparent 82%);
+  animation: planePulse 42s ease-in-out infinite;
+}
+
+.white-plane--secondary {
+  inset: -26% -12% -14% -24%;
+  background: conic-gradient(from 120deg at 48% 52%, rgba(253, 224, 71, 0.12), rgba(255, 255, 255, 0.75) 35%, rgba(208, 213, 221, 0.25) 55%, rgba(253, 224, 71, 0.08) 75%, transparent 100%);
+  opacity: 0.55;
+  filter: blur(150px);
+  animation: planeDrift 48s ease-in-out infinite;
+}
+
+.white-plane--tertiary {
+  inset: -12% -6% -22% -6%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 10%, rgba(248, 250, 252, 0.35) 45%, rgba(229, 231, 235, 0.24) 80%, transparent 100%);
+  opacity: 0.5;
+  filter: blur(110px);
+  animation: planeSweep 56s ease-in-out infinite;
+}
+
 .luminous-core {
   position: absolute;
   inset: 50% auto auto 50%;
@@ -304,18 +334,32 @@ body.theme-midnight .portal-button__halo {
   letter-spacing: 0.04em;
   text-transform: none;
   color: rgba(255, 255, 255, 0.78);
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.92), 0 0 60px rgba(253, 224, 71, 0.45);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(253, 224, 71, 0.4);
   opacity: 0;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 22px rgba(253, 224, 71, 0.35));
   animation-name: formulaDrift;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+.equation-node::after {
+  content: "";
+  position: absolute;
+  inset: -55% -60%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(253, 224, 71, 0.25) 45%, transparent 75%);
+  opacity: 0.55;
+  filter: blur(26px);
+  transform: translate3d(0, 0, 0);
+  z-index: -1;
 }
 
 .equation-node--formula {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.92);
-  text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 38px rgba(253, 213, 86, 0.55), 0 0 64px rgba(250, 250, 210, 0.45);
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 32px rgba(253, 213, 86, 0.55), 0 0 48px rgba(250, 250, 210, 0.42);
 }
 
 .equation-node--glyph {
@@ -481,6 +525,52 @@ body.theme-midnight .portal-button__halo {
   }
 }
 
+@keyframes planePulse {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 0.78;
+  }
+  45% {
+    transform: scale(1.08) translate3d(2%, -1%, 0);
+    opacity: 0.95;
+  }
+  70% {
+    transform: scale(0.97) translate3d(-1.5%, 1.5%, 0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes planeDrift {
+  0% {
+    transform: rotate(0deg) translate3d(0, 0, 0) scale(1.04);
+    opacity: 0.42;
+  }
+  40% {
+    transform: rotate(6deg) translate3d(2%, -2%, 0) scale(1.08);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(-6deg) translate3d(-2%, 3%, 0) scale(1.03);
+    opacity: 0.42;
+  }
+}
+
+@keyframes planeSweep {
+  0% {
+    transform: translate3d(-6%, -4%, 0) skewX(-2deg) scale(1.02);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) skewX(2.5deg) scale(1.06);
+    opacity: 0.68;
+  }
+  100% {
+    transform: translate3d(-6%, -4%, 0) skewX(-2deg) scale(1.02);
+    opacity: 0.5;
+  }
+}
+
 @keyframes auroraFlow {
   0% {
     transform: translate3d(-10%, -4%, 0) rotate(0deg);
@@ -564,23 +654,33 @@ body.theme-midnight .portal-button__halo {
 @keyframes formulaDrift {
   0% {
     transform: translate3d(calc(-50% + var(--start-x, 0px)), calc(-50% + var(--start-y, 0px)), 0)
-      rotate(var(--start-rot, 0deg)) scale(0.94);
+      rotate(var(--start-rot, 0deg)) scale(var(--scale-min, 0.9));
     opacity: 0;
   }
-  18% {
-    opacity: 0.85;
+  12% {
+    opacity: calc(var(--opacity-peak, 0.92) * 0.35);
   }
-  50% {
-    transform: translate3d(calc(-50% + var(--mid-x, 0px)), calc(-50% + var(--mid-y, 0px)), 0)
-      rotate(var(--mid-rot, 0deg)) scale(1.03);
-    opacity: 0.95;
+  25% {
+    transform: translate3d(calc(-50% + var(--ctrl1-x, 0px)), calc(-50% + var(--ctrl1-y, 0px)), 0)
+      rotate(var(--ctrl1-rot, 0deg)) scale(var(--scale-mid, 1));
+    opacity: calc(var(--opacity-peak, 0.92) * 0.75);
   }
-  82% {
-    opacity: 0.85;
+  45% {
+    transform: translate3d(calc(-50% + var(--ctrl2-x, 0px)), calc(-50% + var(--ctrl2-y, 0px)), 0)
+      rotate(var(--ctrl2-rot, 0deg)) scale(var(--scale-max, 1.1));
+    opacity: var(--opacity-peak, 0.92);
+  }
+  68% {
+    transform: translate3d(calc(-50% + var(--ctrl3-x, 0px)), calc(-50% + var(--ctrl3-y, 0px)), 0)
+      rotate(var(--ctrl3-rot, 0deg)) scale(var(--scale-mid, 1));
+    opacity: calc(var(--opacity-peak, 0.92) * 0.85);
+  }
+  84% {
+    opacity: calc(var(--opacity-peak, 0.92) * 0.5);
   }
   100% {
     transform: translate3d(calc(-50% + var(--end-x, 0px)), calc(-50% + var(--end-y, 0px)), 0)
-      rotate(var(--end-rot, 0deg)) scale(0.9);
+      rotate(var(--end-rot, 0deg)) scale(var(--scale-min, 0.9));
     opacity: 0;
   }
 }

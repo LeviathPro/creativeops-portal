@@ -37,16 +37,26 @@ const buildField = () =>
       top: `${top}%`,
       left: `${left}%`,
       animationDelay: `${index * 0.35}s`,
-      animationDuration: `${22 + randomInRange(0, 18)}s`,
+      animationDuration: `${26 + randomInRange(0, 22)}s`,
       "--start-x": `${randomInRange(-6, 6).toFixed(2)}vmin`,
       "--start-y": `${randomInRange(-8, 2).toFixed(2)}vmin`,
-      "--mid-x": `${randomInRange(-12, 12).toFixed(2)}vmin`,
-      "--mid-y": `${randomInRange(-10, 10).toFixed(2)}vmin`,
+      "--ctrl1-x": `${randomInRange(-16, 16).toFixed(2)}vmin`,
+      "--ctrl1-y": `${randomInRange(-14, 14).toFixed(2)}vmin`,
+      "--ctrl2-x": `${randomInRange(-20, 20).toFixed(2)}vmin`,
+      "--ctrl2-y": `${randomInRange(-18, 18).toFixed(2)}vmin`,
+      "--ctrl3-x": `${randomInRange(-14, 14).toFixed(2)}vmin`,
+      "--ctrl3-y": `${randomInRange(-16, 16).toFixed(2)}vmin`,
       "--end-x": `${randomInRange(-6, 6).toFixed(2)}vmin`,
       "--end-y": `${randomInRange(-2, 8).toFixed(2)}vmin`,
-      "--start-rot": `${randomInRange(-12, 12).toFixed(2)}deg`,
-      "--mid-rot": `${randomInRange(-60, 60).toFixed(2)}deg`,
-      "--end-rot": `${randomInRange(-24, 24).toFixed(2)}deg`
+      "--start-rot": `${randomInRange(-18, 18).toFixed(2)}deg`,
+      "--ctrl1-rot": `${randomInRange(-42, 42).toFixed(2)}deg`,
+      "--ctrl2-rot": `${randomInRange(-72, 72).toFixed(2)}deg`,
+      "--ctrl3-rot": `${randomInRange(-54, 54).toFixed(2)}deg`,
+      "--end-rot": `${randomInRange(-24, 24).toFixed(2)}deg`,
+      "--scale-min": randomInRange(0.82, 0.94).toFixed(3),
+      "--scale-mid": randomInRange(0.96, 1.12).toFixed(3),
+      "--scale-max": randomInRange(1.08, 1.2).toFixed(3),
+      "--opacity-peak": randomInRange(0.82, 0.98).toFixed(2)
     };
 
     return {
@@ -62,6 +72,9 @@ const VideoBackground = () => {
 
   return (
     <div className="portal-canvas">
+      <div className="white-plane white-plane--primary" />
+      <div className="white-plane white-plane--secondary" />
+      <div className="white-plane white-plane--tertiary" />
       <div className="luminous-core" />
       <div className="celestial-haze" />
       <div className="golden-veil" />
