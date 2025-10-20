@@ -1,5 +1,686 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* keep animations smooth on mobile */
-.hue-bg { will-change: filter, transform; }
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply antialiased;
+  background: #f8fafc;
+  color: #ffffff;
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.theme-luminous {
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #f8fafc 60%, #e2e8f0 100%);
+  color: #ffffff;
+}
+
+body.theme-midnight {
+  background: radial-gradient(circle at 50% 30%, #0f172a 0%, #020617 55%, #010314 100%);
+  color: #e2f1ff;
+}
+
+body.theme-midnight .glass-panel {
+  background-color: rgba(4, 7, 20, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+body.theme-midnight .portal-canvas {
+  background: radial-gradient(circle at 50% 30%, rgba(22, 28, 45, 0.9), rgba(9, 10, 19, 0.92) 55%, rgba(3, 6, 23, 0.98) 85%);
+}
+
+body.theme-midnight .equation-node--formula {
+  color: rgba(226, 232, 240, 0.8);
+}
+
+body.theme-midnight .equation-node--glyph {
+  color: rgba(20, 184, 166, 0.45);
+}
+
+body.theme-midnight .portal-button__halo {
+  box-shadow: 0 0 24px rgba(125, 211, 252, 0.45), inset 0 0 120px rgba(10, 12, 28, 0.85);
+}
+
+.glass-panel {
+  backdrop-filter: blur(36px);
+}
+
+.portal-button__outer-glow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(253, 224, 71, 0.4) 40%, rgba(255, 255, 255, 0.15) 70%,
+      rgba(255, 255, 255, 0));
+  filter: blur(32px);
+  opacity: 0.9;
+}
+
+.portal-button__halo {
+  position: absolute;
+  inset: 4%;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.45), inset 0 0 120px rgba(15, 23, 42, 0.85);
+  background: radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.18), rgba(15, 23, 42, 0.92) 60%, rgba(15, 23, 42, 0.95) 80%);
+  opacity: 0.85;
+}
+
+.portal-button__inner-shadow {
+  position: absolute;
+  inset: 18%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(12, 12, 12, 0.95) 0%, rgba(12, 12, 12, 0.75) 65%, rgba(30, 41, 59, 0.35) 95%);
+  box-shadow: inset 0 0 65px rgba(0, 0, 0, 0.95);
+}
+
+.portal-button__label {
+  position: relative;
+  font-size: 0.72rem;
+  letter-spacing: 0.55em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.85), 0 0 36px rgba(253, 224, 71, 0.45);
+}
+
+.portal-mandala {
+  position: absolute;
+  inset: 16%;
+  width: 68%;
+  height: 68%;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.55));
+}
+
+.portal-mandala * {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mandala-orbit {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 0.9;
+  stroke-dasharray: 6 18;
+  animation: mandalaSpin 24s linear infinite;
+}
+
+.mandala-orbit--mid {
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-dasharray: 3 12;
+  animation-duration: 36s;
+  animation-direction: reverse;
+  opacity: 0.75;
+}
+
+.mandala-orbit--inner {
+  stroke: rgba(253, 224, 71, 0.65);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 8;
+  animation-duration: 18s;
+}
+
+.mandala-polygon {
+  stroke: rgba(255, 255, 255, 0.72);
+  stroke-width: 0.8;
+  stroke-dasharray: 22 10;
+  animation: mandalaFold 12s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.mandala-polygon--tri {
+  stroke: rgba(255, 255, 255, 0.5);
+  animation-duration: 10s;
+  animation-delay: -2s;
+}
+
+.mandala-polygon--diamond {
+  stroke: rgba(253, 224, 71, 0.55);
+  stroke-dasharray: 18 12;
+  animation-duration: 14s;
+  animation-direction: reverse;
+  opacity: 0.8;
+}
+
+.mandala-suture {
+  stroke: rgba(253, 224, 71, 0.7);
+  stroke-width: 0.6;
+  stroke-dasharray: 18 9;
+  animation: mandalaSuture 16s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+.mandala-suture--counter {
+  stroke: rgba(255, 255, 255, 0.55);
+  animation-direction: reverse;
+  animation-duration: 18s;
+  opacity: 0.65;
+}
+
+.mandala-ray {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.6;
+  stroke-dasharray: 4 10;
+  animation: mandalaRay 9s ease-in-out infinite;
+}
+
+.mandala-core {
+  mix-blend-mode: screen;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.65));
+}
+
+.portal-button {
+  box-shadow: 0 35px 70px rgba(15, 23, 42, 0.55);
+}
+
+.portal-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.85) 38%, rgba(226, 232, 240, 0.65) 70%, rgba(248, 250, 252, 0.92));
+}
+
+.white-plane {
+  position: absolute;
+  inset: -18%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.75;
+  filter: blur(120px);
+}
+
+.white-plane--primary {
+  background: radial-gradient(circle at 32% 44%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.6) 42%, rgba(241, 245, 249, 0.25) 68%, transparent 82%);
+  animation: planePulse 42s ease-in-out infinite;
+}
+
+.white-plane--secondary {
+  inset: -26% -12% -14% -24%;
+  background: conic-gradient(from 120deg at 48% 52%, rgba(253, 224, 71, 0.12), rgba(255, 255, 255, 0.75) 35%, rgba(208, 213, 221, 0.25) 55%, rgba(253, 224, 71, 0.08) 75%, transparent 100%);
+  opacity: 0.55;
+  filter: blur(150px);
+  animation: planeDrift 48s ease-in-out infinite;
+}
+
+.white-plane--tertiary {
+  inset: -12% -6% -22% -6%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 10%, rgba(248, 250, 252, 0.35) 45%, rgba(229, 231, 235, 0.24) 80%, transparent 100%);
+  opacity: 0.5;
+  filter: blur(110px);
+  animation: planeSweep 56s ease-in-out infinite;
+}
+
+.luminous-core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 140vmax;
+  height: 140vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 48%, transparent 70%);
+  filter: blur(160px);
+  opacity: 0.9;
+  animation: luminousPulse 18s ease-in-out infinite;
+}
+
+.celestial-haze {
+  position: absolute;
+  inset: -30%;
+  background: conic-gradient(from 120deg at 50% 50%, rgba(255, 255, 255, 0.35), rgba(253, 224, 71, 0.22), rgba(255, 255, 255, 0.1));
+  filter: blur(220px) saturate(140%);
+  mix-blend-mode: screen;
+  animation: auroraOrbit 42s linear infinite;
+  opacity: 0.8;
+}
+
+.golden-veil {
+  position: absolute;
+  inset: -10% -30% 20% -30%;
+  background: radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.45), transparent 55%),
+    radial-gradient(circle at 70% 40%, rgba(253, 213, 86, 0.35), transparent 50%);
+  filter: blur(90px);
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: veilPulse 24s ease-in-out infinite;
+}
+
+.aurora-stream {
+  position: absolute;
+  inset: -40% 0 -30% 0;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0) 10%, rgba(248, 250, 252, 0.6) 40%, rgba(253, 224, 71, 0.2) 60%, rgba(255, 255, 255, 0) 90%);
+  filter: blur(80px);
+  mix-blend-mode: lighten;
+  opacity: 0.65;
+  animation: auroraFlow 28s linear infinite;
+}
+
+.string-rings {
+  position: absolute;
+  inset: -15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.string-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(253, 224, 71, 0.45);
+  filter: drop-shadow(0 0 30px rgba(253, 224, 71, 0.35));
+  animation: stringOrbit 36s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.string-ring--one {
+  width: 58vmax;
+  height: 58vmax;
+}
+
+.string-ring--two {
+  width: 74vmax;
+  height: 74vmax;
+  animation-duration: 46s;
+  animation-direction: reverse;
+  opacity: 0.55;
+}
+
+.string-ring--three {
+  width: 96vmax;
+  height: 96vmax;
+  animation-duration: 60s;
+  opacity: 0.35;
+}
+
+.nebula-smoke {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.45), transparent 65%),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(circle at 40% 30%, rgba(253, 213, 86, 0.18), transparent 50%);
+  filter: blur(70px);
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  animation: nebulaRise 32s ease-in-out infinite;
+}
+
+.particle-stream {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, transparent 70%),
+    radial-gradient(circle, rgba(253, 224, 71, 0.25) 0, transparent 75%);
+  background-size: 260px 260px, 180px 180px;
+  mix-blend-mode: screen;
+  opacity: 0.45;
+  animation: particleGlide 34s ease-in-out infinite;
+}
+
+.equation-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.equation-node {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+  font-size: clamp(1.05rem, 1.8vw, 2.4rem);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(253, 224, 71, 0.4);
+  opacity: 0;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 22px rgba(253, 224, 71, 0.35));
+  animation-name: formulaDrift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+.equation-node::after {
+  content: "";
+  position: absolute;
+  inset: -55% -60%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(253, 224, 71, 0.25) 45%, transparent 75%);
+  opacity: 0.55;
+  filter: blur(26px);
+  transform: translate3d(0, 0, 0);
+  z-index: -1;
+}
+
+.equation-node--formula {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 32px rgba(253, 213, 86, 0.55), 0 0 48px rgba(250, 250, 210, 0.42);
+}
+
+.equation-node--glyph {
+  font-size: clamp(1.5rem, 2.4vw, 3.1rem);
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.65), 0 0 32px rgba(253, 213, 86, 0.35);
+  animation-duration: 28s;
+}
+
+.wormhole-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.9), rgba(8, 11, 24, 0.6) 55%, rgba(4, 7, 14, 0.9) 82%);
+  mix-blend-mode: lighten;
+}
+
+.wormhole-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 65%);
+  filter: blur(120px);
+  opacity: 0.65;
+}
+
+.wormhole-stars {
+  position: absolute;
+  inset: -10%;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0, transparent 65%),
+    radial-gradient(circle, rgba(253, 224, 71, 0.4) 0, transparent 70%);
+  background-size: 280px 280px, 160px 160px;
+  animation: wormholeParallax 14s linear infinite;
+  opacity: 0.45;
+}
+
+.wormhole-tunnel {
+  position: relative;
+  width: 120vmax;
+  height: 120vmax;
+  filter: blur(1.5px) drop-shadow(0 0 45px rgba(255, 255, 255, 0.45));
+}
+
+.wormhole-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.4px solid rgba(255, 255, 255, 0.35);
+  border-top-color: rgba(253, 224, 71, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+  mix-blend-mode: screen;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.45), inset 0 0 24px rgba(253, 224, 71, 0.35);
+}
+
+.wormhole-fractals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wormhole-fractal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.4rem;
+  height: 14vmin;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(253, 224, 71, 0.35) 65%, transparent);
+  transform-origin: center top;
+  transform: rotate(var(--fragment-angle)) translateY(calc(var(--fragment-distance) * -1));
+  opacity: 0;
+  animation-name: fractalStreak;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+}
+
+@keyframes luminousPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.04);
+    opacity: 0.95;
+  }
+}
+
+@keyframes auroraOrbit {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes veilPulse {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05) translateY(-2%);
+    opacity: 0.9;
+  }
+}
+
+@keyframes mandalaSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mandalaFold {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg) scale(0.96);
+    opacity: 0.75;
+  }
+  50% {
+    stroke-dashoffset: 120;
+    transform: rotate(6deg) scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes mandalaSuture {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg);
+  }
+  50% {
+    stroke-dashoffset: 90;
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes mandalaRay {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.4;
+  }
+  50% {
+    stroke-dashoffset: 45;
+    opacity: 0.85;
+  }
+}
+
+@keyframes planePulse {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 0.78;
+  }
+  45% {
+    transform: scale(1.08) translate3d(2%, -1%, 0);
+    opacity: 0.95;
+  }
+  70% {
+    transform: scale(0.97) translate3d(-1.5%, 1.5%, 0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes planeDrift {
+  0% {
+    transform: rotate(0deg) translate3d(0, 0, 0) scale(1.04);
+    opacity: 0.42;
+  }
+  40% {
+    transform: rotate(6deg) translate3d(2%, -2%, 0) scale(1.08);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(-6deg) translate3d(-2%, 3%, 0) scale(1.03);
+    opacity: 0.42;
+  }
+}
+
+@keyframes planeSweep {
+  0% {
+    transform: translate3d(-6%, -4%, 0) skewX(-2deg) scale(1.02);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) skewX(2.5deg) scale(1.06);
+    opacity: 0.68;
+  }
+  100% {
+    transform: translate3d(-6%, -4%, 0) skewX(-2deg) scale(1.02);
+    opacity: 0.5;
+  }
+}
+
+@keyframes auroraFlow {
+  0% {
+    transform: translate3d(-10%, -4%, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(10%, 6%, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(-10%, -4%, 0) rotate(0deg);
+  }
+}
+
+@keyframes stringOrbit {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.03);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes nebulaRise {
+  0% {
+    transform: translate3d(0, 4%, 0) scale(1.02);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(0, -4%, 0) scale(1.05);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(0, 4%, 0) scale(1.02);
+    opacity: 0.55;
+  }
+}
+
+@keyframes particleGlide {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+}
+
+@keyframes wormholeParallax {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-4%, 2%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes fractalStreak {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--fragment-angle)) translateY(calc(var(--fragment-distance) * -1)) scaleY(0.6);
+  }
+  25% {
+    opacity: 0.95;
+  }
+  60% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--fragment-angle)) translateY(calc(var(--fragment-distance) * -1.6)) scaleY(1.25);
+  }
+}
+
+@keyframes formulaDrift {
+  0% {
+    transform: translate3d(calc(-50% + var(--start-x, 0px)), calc(-50% + var(--start-y, 0px)), 0)
+      rotate(var(--start-rot, 0deg)) scale(var(--scale-min, 0.9));
+    opacity: 0;
+  }
+  12% {
+    opacity: calc(var(--opacity-peak, 0.92) * 0.35);
+  }
+  25% {
+    transform: translate3d(calc(-50% + var(--ctrl1-x, 0px)), calc(-50% + var(--ctrl1-y, 0px)), 0)
+      rotate(var(--ctrl1-rot, 0deg)) scale(var(--scale-mid, 1));
+    opacity: calc(var(--opacity-peak, 0.92) * 0.75);
+  }
+  45% {
+    transform: translate3d(calc(-50% + var(--ctrl2-x, 0px)), calc(-50% + var(--ctrl2-y, 0px)), 0)
+      rotate(var(--ctrl2-rot, 0deg)) scale(var(--scale-max, 1.1));
+    opacity: var(--opacity-peak, 0.92);
+  }
+  68% {
+    transform: translate3d(calc(-50% + var(--ctrl3-x, 0px)), calc(-50% + var(--ctrl3-y, 0px)), 0)
+      rotate(var(--ctrl3-rot, 0deg)) scale(var(--scale-mid, 1));
+    opacity: calc(var(--opacity-peak, 0.92) * 0.85);
+  }
+  84% {
+    opacity: calc(var(--opacity-peak, 0.92) * 0.5);
+  }
+  100% {
+    transform: translate3d(calc(-50% + var(--end-x, 0px)), calc(-50% + var(--end-y, 0px)), 0)
+      rotate(var(--end-rot, 0deg)) scale(var(--scale-min, 0.9));
+    opacity: 0;
+  }
+}
