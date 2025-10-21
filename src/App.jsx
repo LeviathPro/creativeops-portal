@@ -1,240 +1,102 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import VideoBackground from "./components/VideoBackground";
-import BlackHoleButton from "./components/BlackHoleButton";
-import AuthPanel from "./components/AuthPanel";
-import PortalShell from "./components/PortalShell";
-import { DataProvider } from "./components/DataContext";
-import WormholeTransition from "./components/WormholeTransition";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import SplashScreen from "./components/SplashScreen";
+import LandingExperience from "./components/LandingExperience";
+import TimewarpSequence from "./components/TimewarpSequence";
+import SignInShell from "./components/SignInShell";
 
-const WORMHOLE_DURATION = 10000;
-
-const introVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
-};
-
-const defaultTabByRole = {
-  ADMIN: "dashboard",
-  FOREMAN: "jobs",
-  TEAM_LEAD: "jobs",
-  CREW: "dashboard",
-  APPRENTICE: "training",
-  CLIENT: "client",
-  GUEST: "portfolio"
-};
-
-const directory = {
-  "leviathproductions@gmail.com": {
-    password: "Freyja1!",
-    role: "ADMIN",
-    name: "Leviath Productions",
-    displayRole: "Co-Owner"
-  },
-  "stacygrohoske@gmail.com": {
-    password: "Kendall929!",
-    role: "ADMIN",
-    name: "Stacy Grohoske",
-    displayRole: "Co-Owner"
-  },
-  "foreman@creativeops.test": {
-    password: "crewlead",
-    role: "FOREMAN",
-    name: "Foreman Rivera",
-    displayRole: "Field Command"
-  },
-  "teamlead@creativeops.test": {
-    password: "deckteam",
-    role: "TEAM_LEAD",
-    name: "Team Lead Morgan",
-    displayRole: "Ops Lead"
-  },
-  "crew@creativeops.test": {
-    password: "buildcrew",
-    role: "CREW",
-    name: "Crew Member",
-    displayRole: "Crew"
-  },
-  "apprentice@creativeops.test": {
-    password: "learnandbuild",
-    role: "APPRENTICE",
-    name: "Apprentice Nova",
-    displayRole: "Training"
-  },
-  "client@creativeops.test": {
-    password: "clientview",
-    role: "CLIENT",
-    name: "Client Aurora",
-    displayRole: "Client"
-  }
-};
-
-const App = () => {
-  const [step, setStep] = useState("landing");
-  const [selectedRole, setSelectedRole] = useState("ADMIN");
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [user, setUser] = useState(null);
-  const [authError, setAuthError] = useState("");
-  const [isWarping, setIsWarping] = useState(false);
-  const warpTimersRef = useRef([]);
-
-  useEffect(() => {
-    return () => {
-      warpTimersRef.current.forEach((timer) => clearTimeout(timer));
-      warpTimersRef.current = [];
+const useDurations = () =>
+  useMemo(() => {
+    const isTestEnv = typeof import.meta !== "undefined" && import.meta.env?.MODE === "test";
+    return {
+      splashFade: isTestEnv ? 0 : 800,
+      splashVisible: isTestEnv ? 0 : 3200,
+      timewarp: isTestEnv ? 0 : 12000
     };
   }, []);
 
-  const userName = useMemo(() => {
-    if (!user) return "Guest";
-    return user.name ?? "Operator";
-  }, [user]);
+const App = () => {
+  const durations = useDurations();
+  const initialSplash = durations.splashFade + durations.splashVisible > 0;
+  const [stage, setStage] = useState("landing");
+  const [showSplash, setShowSplash] = useState(initialSplash);
+  const timersRef = useRef([]);
 
-  const handlePortalEntry = () => {
-    if (isWarping) return;
-    warpTimersRef.current.forEach((timer) => clearTimeout(timer));
-    warpTimersRef.current = [];
-    setIsWarping(true);
-    const toSignin = setTimeout(() => {
-      setStep("signin");
-    }, WORMHOLE_DURATION);
-    const finishWarp = setTimeout(() => {
-      setIsWarping(false);
-    }, WORMHOLE_DURATION + 800);
-    warpTimersRef.current = [toSignin, finishWarp];
-  };
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
+  }, []);
 
-  const handleRoleSelect = (roleId) => {
-    setSelectedRole(roleId);
-    setActiveTab(defaultTabByRole[roleId] ?? "dashboard");
-  };
+  const queueTimer = useCallback((callback, delay) => {
+    const timer = setTimeout(() => {
+      callback();
+      timersRef.current = timersRef.current.filter((existing) => existing !== timer);
+    }, delay);
+    timersRef.current.push(timer);
+    return timer;
+  }, []);
 
-  const handleProviderLogin = (providerId) => {
-    const roleToApply = selectedRole ?? "CLIENT";
-    const generatedName = `${roleToApply} ${providerId === "guest" ? "Guest" : "Operator"}`;
-    const emailAlias = `${providerId}.${roleToApply.toLowerCase()}@creativeops.demo`;
-    setUser({
-      email: emailAlias,
-      name: generatedName,
-      provider: providerId,
-      role: roleToApply,
-      displayRole: roleToApply
-    });
-    setActiveTab(defaultTabByRole[roleToApply] ?? "dashboard");
-    setAuthError("");
-    setStep("portal");
-  };
+  const clearQueuedTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
 
-  const handleManualSignIn = (email, password) => {
-    if (!email || !password) {
-      setAuthError("Enter an email and password to continue.");
+  useEffect(() => {
+    if (!showSplash) return;
+    const total = durations.splashFade + durations.splashVisible;
+    if (total <= 0) {
+      setShowSplash(false);
+      return undefined;
+    }
+
+    const timer = queueTimer(() => {
+      setShowSplash(false);
+    }, total);
+
+    return () => {
+      clearTimeout(timer);
+      timersRef.current = timersRef.current.filter((existing) => existing !== timer);
+    };
+  }, [durations.splashFade, durations.splashVisible, queueTimer, showSplash]);
+
+  const handleEnterPortal = useCallback(() => {
+    if (showSplash || stage !== "landing") return;
+    clearQueuedTimers();
+    if (durations.timewarp <= 0) {
+      setStage("signin");
       return;
     }
-    const record = directory[email.trim().toLowerCase()];
-    if (!record || record.password !== password) {
-      setAuthError("Credentials not recognized. Confirm your account or use the provider buttons to demo roles.");
-      return;
-    }
-    const nextRole = record.role;
-    setUser({
-      email,
-      name: record.name,
-      role: nextRole,
-      displayRole: record.displayRole
-    });
-    setSelectedRole(nextRole);
-    setActiveTab(defaultTabByRole[nextRole] ?? "dashboard");
-    setAuthError("");
-    setStep("portal");
-  };
+    setStage("timewarp");
+    queueTimer(() => {
+      setStage("signin");
+    }, durations.timewarp);
+  }, [clearQueuedTimers, durations.timewarp, queueTimer, showSplash, stage]);
 
-  const handleSignOut = () => {
-    setStep("landing");
-    setUser(null);
-    setSelectedRole("ADMIN");
-    setActiveTab("dashboard");
-    setAuthError("");
-    setIsWarping(false);
-  };
+  const handleTimewarpComplete = useCallback(() => {
+    setStage("signin");
+  }, []);
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white">
-      <VideoBackground />
+    <div className="app-frame">
+      <div className="solid-white-bg" aria-hidden="true" />
       <AnimatePresence>
-        {isWarping && <WormholeTransition key="wormhole" />}
+        {showSplash && <SplashScreen key="splash" fadeDuration={durations.splashFade} />}
       </AnimatePresence>
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
-        <AnimatePresence mode="wait">
-          {step === "landing" && (
-            <motion.section
-              key="landing"
-              variants={introVariants}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.4 } }}
-              className="flex flex-col items-center gap-10 text-center"
-            >
-              <motion.div initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}>
-                <p className="text-xs uppercase tracking-[0.6em] text-amber-500/80">Creative Deck &amp; Fence, LLC</p>
-                <h1 className="mt-4 text-5xl font-semibold leading-tight text-white drop-shadow-[0_0_24px_rgba(0,0,0,0.6)] md:text-6xl">
-                  Creative Ops Portal
-                </h1>
-                <p className="mt-6 max-w-2xl text-[0.55rem] font-medium uppercase tracking-[0.6em] text-black/70 drop-shadow-[0_0_18px_rgba(255,255,255,0.85)]">
-                  Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC. Step through the luminous
-                  portal to orchestrate operations across the entire company.
-                </p>
-              </motion.div>
-              <BlackHoleButton onClick={handlePortalEntry} disabled={isWarping} />
-            </motion.section>
-          )}
-
-          {step === "signin" && (
-            <motion.section
-              key="signin"
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, transition: { duration: 0.4 } }}
-              className="w-full"
-            >
-              <div className="mb-8 text-center">
-                <p className="text-xs uppercase tracking-[0.6em] text-amber-500/80">Secure Gateway</p>
-                <h2 className="mt-2 text-4xl font-semibold text-white">Authenticate &amp; Align Roles</h2>
-              </div>
-              <AuthPanel
-                activeRole={selectedRole}
-                onSelectRole={handleRoleSelect}
-                onProviderLogin={handleProviderLogin}
-                onManualLogin={handleManualSignIn}
-                error={authError}
-              />
-              <p className="mt-6 text-center text-xs text-white/70">
-                Use Stacy or Levi&apos;s credentials for full administrative control. Other demo accounts simulate role-based views so
-                you can preview permissions instantly.
-              </p>
-            </motion.section>
-          )}
-
-          {step === "portal" && user && (
-            <motion.section
-              key="portal"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              className="w-full"
-            >
-              <DataProvider>
-                <PortalShell
-                  user={user}
-                  activeRole={user.role}
-                  activeTab={activeTab}
-                  onChangeTab={setActiveTab}
-                  onLogout={handleSignOut}
-                />
-              </DataProvider>
-            </motion.section>
-          )}
-        </AnimatePresence>
-      </div>
+      <AnimatePresence mode="wait">
+        {stage === "landing" && (
+          <LandingExperience key="landing" onEnterPortal={handleEnterPortal} />
+        )}
+        {stage === "timewarp" && (
+          <TimewarpSequence
+            key="timewarp"
+            duration={durations.timewarp}
+            onComplete={handleTimewarpComplete}
+          />
+        )}
+        {stage === "signin" && <SignInShell key="signin" />}
+      </AnimatePresence>
     </div>
   );
 };
