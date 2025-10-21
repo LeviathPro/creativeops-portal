@@ -17,9 +17,10 @@ const generateFragments = () =>
     duration: 3.6 + (index % 5) * 0.8
   }));
 
-const WormholeTransition = () => {
+const WormholeTransition = ({ duration = 10000 }) => {
   const rings = useMemo(generateRings, []);
   const shards = useMemo(generateFragments, []);
+  const fadeDuration = Math.min(1.2, duration / 4000);
 
   return (
     <motion.div
@@ -27,7 +28,7 @@ const WormholeTransition = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1.05, ease: "easeInOut" }}
+      transition={{ duration: fadeDuration, ease: "easeInOut" }}
     >
       <div className="wormhole-stars" />
       <div className="wormhole-tunnel">

@@ -1,27 +1,16 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import VideoBackground from "./components/VideoBackground";
 import BlackHoleButton from "./components/BlackHoleButton";
 import AuthPanel from "./components/AuthPanel";
 import PortalShell from "./components/PortalShell";
-import { DataProvider } from "./components/DataContext";
 import WormholeTransition from "./components/WormholeTransition";
 
-const WORMHOLE_DURATION = 11000;
+const WORMHOLE_DURATION = 10000;
 
 const introVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
-};
-
-const defaultTabByRole = {
-  ADMIN: "dashboard",
-  FOREMAN: "jobs",
-  TEAM_LEAD: "jobs",
-  CREW: "dashboard",
-  APPRENTICE: "training",
-  CLIENT: "client",
-  GUEST: "portfolio"
 };
 
 const directory = {
@@ -29,254 +18,236 @@ const directory = {
     password: "Freyja1!",
     role: "ADMIN",
     name: "Leviath Productions",
-    displayRole: "Co-Owner",
-    providers: ["manual", "google"]
+    displayRole: "Co-Owner"
   },
   "stacygrohoske@gmail.com": {
     password: "Kendall929!",
     role: "ADMIN",
     name: "Stacy Grohoske",
-    displayRole: "Co-Owner",
-    providers: ["manual", "google", "facebook"]
+    displayRole: "Co-Owner"
   },
   "foreman@creativeops.test": {
     password: "crewlead",
     role: "FOREMAN",
     name: "Foreman Rivera",
-    displayRole: "Field Command",
-    providers: ["manual", "microsoft"]
+    displayRole: "Field Command"
   },
   "teamlead@creativeops.test": {
     password: "deckteam",
     role: "TEAM_LEAD",
     name: "Team Lead Morgan",
-    displayRole: "Ops Lead",
-    providers: ["manual", "google"]
+    displayRole: "Ops Lead"
   },
   "crew@creativeops.test": {
     password: "buildcrew",
     role: "CREW",
     name: "Crew Member",
-    displayRole: "Crew",
-    providers: ["manual"]
+    displayRole: "Crew"
   },
   "apprentice@creativeops.test": {
-    password: "learnandbuild",
+    password: "learnfast",
     role: "APPRENTICE",
-    name: "Apprentice Nova",
-    displayRole: "Training",
-    providers: ["manual"]
+    name: "Apprentice Jordan",
+    displayRole: "Apprentice"
   },
   "client@creativeops.test": {
     password: "clientview",
     role: "CLIENT",
-    name: "Client Aurora",
-    displayRole: "Client",
-    providers: ["manual", "guest"]
-  },
-  "guest@creativeops.test": {
-    password: "guestaccess",
-    role: "GUEST",
-    name: "Guest Observer",
-    displayRole: "Preview",
-    providers: ["guest"]
+    name: "Client Sanders",
+    displayRole: "Client"
   }
 };
 
+const tabsByRole = {
+  ADMIN: [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "contractors", label: "Contractors" },
+    { id: "jobs", label: "Jobs" },
+    { id: "payouts", label: "Payouts / ACH" },
+    { id: "filings1099", label: "1099 Filings" },
+    { id: "schedule", label: "Scheduling / Gantt" },
+    { id: "materials", label: "Materials / POs" },
+    { id: "quotes", label: "Quotes / Estimates" },
+    { id: "changeOrders", label: "Change Orders" },
+    { id: "timesheets", label: "Timesheets" },
+    { id: "weather", label: "Weather" },
+    { id: "invoices", label: "Invoices" },
+    { id: "clientPortal", label: "Client Portal" },
+    { id: "analytics", label: "Analytics" },
+    { id: "security", label: "Security" },
+    { id: "admin", label: "Admin / RBAC" },
+    { id: "settings", label: "Settings" }
+  ],
+  FOREMAN: [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "jobs", label: "Jobs" },
+    { id: "crew", label: "Crew Scheduling" },
+    { id: "materials", label: "Materials" },
+    { id: "weather", label: "Weather" },
+    { id: "reports", label: "Daily Reports" },
+    { id: "settings", label: "Settings" }
+  ],
+  TEAM_LEAD: [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "jobs", label: "Jobs" },
+    { id: "tasks", label: "Tasks" },
+    { id: "uploads", label: "Photos & Docs" },
+    { id: "weather", label: "Weather" },
+    { id: "training", label: "Training" },
+    { id: "settings", label: "Settings" }
+  ],
+  CREW: [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "schedule", label: "Schedule" },
+    { id: "training", label: "Training" },
+    { id: "payroll", label: "Payroll" },
+    { id: "weather", label: "Weather" },
+    { id: "settings", label: "Settings" }
+  ],
+  APPRENTICE: [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "training", label: "Training" },
+    { id: "onboarding", label: "Onboarding" },
+    { id: "schedule", label: "Schedule" },
+    { id: "documents", label: "Documents" },
+    { id: "settings", label: "Settings" }
+  ],
+  CLIENT: [
+    { id: "clientDashboard", label: "Project Overview" },
+    { id: "documents", label: "Documents" },
+    { id: "invoices", label: "Invoices" },
+    { id: "gallery", label: "Gallery" },
+    { id: "care", label: "Care Guides" },
+    { id: "changeOrders", label: "Change Orders" },
+    { id: "support", label: "Support" }
+  ],
+  GUEST: [
+    { id: "portfolio", label: "Portfolio" },
+    { id: "about", label: "About" }
+  ]
+};
+
+const defaultTabByRole = {
+  ADMIN: "dashboard",
+  FOREMAN: "dashboard",
+  TEAM_LEAD: "dashboard",
+  CREW: "dashboard",
+  APPRENTICE: "dashboard",
+  CLIENT: "clientDashboard",
+  GUEST: "portfolio"
+};
+
+const quickProviders = [
+  { label: "Continue with Google", email: "leviathproductions@gmail.com" },
+  { label: "Continue with Facebook", email: "stacygrohoske@gmail.com" },
+  { label: "Continue with Microsoft", email: "foreman@creativeops.test" }
+];
+
 const App = () => {
   const [step, setStep] = useState("landing");
-  const [selectedRole, setSelectedRole] = useState("ADMIN");
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [user, setUser] = useState(null);
-  const [authError, setAuthError] = useState("");
-  const [isWarping, setIsWarping] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState(null);
-  const warpTimersRef = useRef([]);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    return () => {
-      warpTimersRef.current.forEach((timer) => clearTimeout(timer));
-      warpTimersRef.current = [];
-    };
-  }, []);
-
-  const userName = useMemo(() => {
-    if (!user) return "Guest";
-    return user.name ?? "Operator";
+    if (!user) return;
+    const defaultTab = defaultTabByRole[user.role] ?? "dashboard";
+    setActiveTab(defaultTab);
   }, [user]);
 
-  const handlePortalEntry = () => {
-    if (isWarping) return;
-    warpTimersRef.current.forEach((timer) => clearTimeout(timer));
-    warpTimersRef.current = [];
-    setIsWarping(true);
-    const toSignin = setTimeout(() => {
+  const tabs = useMemo(() => {
+    if (!user) return [];
+    return tabsByRole[user.role] ?? tabsByRole.ADMIN;
+  }, [user]);
+
+  const handlePortalClick = () => {
+    if (loading) return;
+    setLoading(true);
+    setStep("wormhole");
+    window.setTimeout(() => {
+      setLoading(false);
       setStep("signin");
     }, WORMHOLE_DURATION);
-    const finishWarp = setTimeout(() => {
-      setIsWarping(false);
-    }, WORMHOLE_DURATION + 800);
-    warpTimersRef.current = [toSignin, finishWarp];
   };
 
-  const handleRoleSelect = (roleId) => {
-    setSelectedRole(roleId);
-    setActiveTab(defaultTabByRole[roleId] ?? "dashboard");
-  };
-
-  const handleProviderRequest = (providerId) => {
-    setSelectedProvider(providerId);
-    setAuthError("");
-  };
-
-  const authenticateWithRecord = (recordEmail, record) => {
-    const nextRole = record.role;
-    setUser({
-      email: recordEmail,
-      name: record.name,
-      role: nextRole,
-      displayRole: record.displayRole
-    });
-    setSelectedRole(nextRole);
-    setActiveTab(defaultTabByRole[nextRole] ?? "dashboard");
-    setAuthError("");
-    setSelectedProvider(null);
+  const handleLogin = (email, password) => {
+    const record = directory[email.toLowerCase()];
+    if (!record || record.password !== password) {
+      setError("Invalid credentials. Please try again.");
+      return;
+    }
+    setError("");
+    setUser({ email: email.toLowerCase(), ...record });
     setStep("portal");
   };
 
-  const handleProviderAuthenticate = (providerId, email, password) => {
-    if (!email || !password) {
-      setAuthError("Enter the email and password linked to this provider.");
-      return;
-    }
-    const lookupKey = email.trim().toLowerCase();
-    const record = directory[lookupKey];
+  const handleQuick = (email) => {
+    const record = directory[email.toLowerCase()];
     if (!record) {
-      setAuthError("We couldn’t find that account. Confirm the email or use manual sign-in.");
+      setError("Account not configured.");
       return;
     }
-    if (!record.providers?.includes(providerId)) {
-      setAuthError("This account is not linked to the selected provider.");
-      return;
-    }
-    if (record.password !== password) {
-      setAuthError("Password does not match the selected provider account.");
-      return;
-    }
-    authenticateWithRecord(lookupKey, record);
+    setError("");
+    setUser({ email: email.toLowerCase(), ...record });
+    setStep("portal");
   };
 
-  const handleManualSignIn = (email, password) => {
-    if (!email || !password) {
-      setAuthError("Enter an email and password to continue.");
-      return;
-    }
-    const record = directory[email.trim().toLowerCase()];
-    if (!record) {
-      setAuthError("Credentials not recognized. Confirm your account or use the provider buttons to demo roles.");
-      return;
-    }
-    if (record.providers && !record.providers.includes("manual")) {
-      setAuthError("This account requires signing in with a linked provider.");
-      return;
-    }
-    if (record.password !== password) {
-      setAuthError("Credentials not recognized. Confirm your account or use the provider buttons to demo roles.");
-      return;
-    }
-    authenticateWithRecord(email.trim().toLowerCase(), record);
-  };
-
-  const handleSignOut = () => {
-    setStep("landing");
+  const handleLogout = () => {
     setUser(null);
-    setSelectedRole("ADMIN");
+    setStep("landing");
     setActiveTab("dashboard");
-    setAuthError("");
-    setIsWarping(false);
-    setSelectedProvider(null);
+    setError("");
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white">
+    <div className="app-root">
       <VideoBackground />
       <AnimatePresence>
-        {isWarping && <WormholeTransition key="wormhole" />}
+        {step === "wormhole" && <WormholeTransition duration={WORMHOLE_DURATION} />}
       </AnimatePresence>
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
-        <AnimatePresence mode="wait">
-          {step === "landing" && (
-            <motion.section
-              key="landing"
-              variants={introVariants}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.4 } }}
-              className="flex flex-col items-center gap-10 text-center"
-            >
-              <motion.div initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}>
-                <p className="text-xs uppercase tracking-[0.6em] text-amber-500/80">Creative Deck &amp; Fence, LLC</p>
-                <h1 className="mt-4 text-5xl font-semibold leading-tight text-white drop-shadow-[0_0_24px_rgba(0,0,0,0.6)] md:text-6xl">
-                  Creative Ops Portal
-                </h1>
-                <p className="mt-6 max-w-2xl text-[0.55rem] font-medium uppercase tracking-[0.6em] text-black/70 drop-shadow-[0_0_18px_rgba(255,255,255,0.85)]">
-                  Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC. Step through the luminous
-                  portal to orchestrate operations across the entire company.
-                </p>
-              </motion.div>
-              <BlackHoleButton onClick={handlePortalEntry} disabled={isWarping} />
-            </motion.section>
-          )}
 
-          {step === "signin" && (
-            <motion.section
-              key="signin"
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, transition: { duration: 0.4 } }}
-              className="w-full"
-            >
-              <div className="mb-8 text-center">
-                <p className="text-xs uppercase tracking-[0.6em] text-amber-500/80">Secure Gateway</p>
-                <h2 className="mt-2 text-4xl font-semibold text-white">Authenticate &amp; Align Roles</h2>
-              </div>
-              <AuthPanel
-                activeRole={selectedRole}
-                onSelectRole={handleRoleSelect}
-                selectedProvider={selectedProvider}
-                onRequestProvider={handleProviderRequest}
-                onProviderAuthenticate={handleProviderAuthenticate}
-                onManualLogin={handleManualSignIn}
-                error={authError}
-              />
-              <p className="mt-6 text-center text-xs text-white/70">
-                Use Stacy or Levi&apos;s credentials for full administrative control. Other demo accounts simulate role-based views so
-                you can preview permissions instantly.
-              </p>
-            </motion.section>
-          )}
+      {step === "landing" && (
+        <div className="landing">
+          <motion.div
+            className="landing-inner"
+            variants={introVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <img src="/logo.png" alt="Creative Ops" className="landing-logo" />
+            <h1 className="landing-title">Creative Ops Portal</h1>
+            <p className="landing-tagline">Innovative Software for the Intelligent Minds of Creative Deck &amp; Fence, LLC.</p>
+            <BlackHoleButton onClick={handlePortalClick} disabled={loading} />
+          </motion.div>
+        </div>
+      )}
 
-          {step === "portal" && user && (
-            <motion.section
-              key="portal"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              className="w-full"
-            >
-              <DataProvider>
-                <PortalShell
-                  user={user}
-                  activeRole={user.role}
-                  activeTab={activeTab}
-                  onChangeTab={setActiveTab}
-                  onLogout={handleSignOut}
-                />
-              </DataProvider>
-            </motion.section>
-          )}
-        </AnimatePresence>
-      </div>
+      {step === "signin" && (
+        <motion.div
+          className="signin-wrapper"
+          variants={introVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <AuthPanel
+            onLogin={handleLogin}
+            onQuickLogin={handleQuick}
+            providers={quickProviders}
+            error={error}
+          />
+        </motion.div>
+      )}
+
+      {step === "portal" && user && (
+        <PortalShell
+          user={user}
+          tabs={tabs}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   );
 };
