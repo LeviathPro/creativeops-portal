@@ -25,18 +25,6 @@ const defaultTabByRole = {
 };
 
 const directory = {
-  "leviathproductions@gmail.com": {
-    password: "Freyja1!",
-    role: "ADMIN",
-    name: "Leviath Productions",
-    displayRole: "Co-Owner"
-  },
-  "stacygrohoske@gmail.com": {
-    password: "Kendall929!",
-    role: "ADMIN",
-    name: "Stacy Grohoske",
-    displayRole: "Co-Owner"
-  },
   "foreman@creativeops.test": {
     password: "crewlead",
     role: "FOREMAN",
@@ -208,8 +196,7 @@ const App = () => {
                 error={authError}
               />
               <p className="mt-6 text-center text-xs text-white/70">
-                Use Stacy or Levi&apos;s credentials for full administrative control. Other demo accounts simulate role-based views so
-                you can preview permissions instantly.
+                Use the demo controls to preview role-based views, including the administrator dashboard.
               </p>
             </motion.section>
           )}
