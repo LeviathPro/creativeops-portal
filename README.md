@@ -11,12 +11,12 @@ npm run dev
 
 The app runs on http://localhost:5173/ by default.
 
-## Default accounts
+## Demo accounts
+
+Use the sample accounts below for local demonstrations.
 
 | Role        | Email                          | Password   | Notes                                      |
 |-------------|--------------------------------|------------|--------------------------------------------|
-| Admin       | leviathproductions@gmail.com   | Freyja1!   | Grants full control to Levi.               |
-| Admin       | stacygrohoske@gmail.com        | Kendall929!| Grants full control to Stacy.              |
 | Foreman     | foreman@creativeops.test       | crewlead   | Scheduling, crew assignment, inventory.    |
 | Team Lead   | teamlead@creativeops.test      | deckteam   | Uploads reports and project media.         |
 | Crew        | crew@creativeops.test          | buildcrew  | Field visibility without financial data.   |
@@ -27,7 +27,7 @@ All provider buttons on the sign-in view will also respect the role that is curr
 
 ## Dashboard editing
 
-Once an administrator signs in, every module inside the portal exposes inline edit controls. Changes are persisted to local state so Stacy and Levi can configure tables, cards, and task lists directly from the UI without modifying source code.
+Once an administrator signs in, every module inside the portal exposes inline edit controls. Changes are persisted to local state so administrators can configure tables, cards, and task lists directly from the UI without modifying source code.
 
 ## Visual design
 
